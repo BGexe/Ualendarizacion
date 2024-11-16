@@ -1,5 +1,5 @@
 // ResetPassword.js es la interfaz encargada del reseteo de contraseña
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {resetPassword, checkEmailExists} from './AuthService';
 import {showError, showSuccess} from '../ShowAlert';
@@ -8,8 +8,18 @@ import '../style.css';
 const ResetPassword = () => {
     const[email, setEmail] = useState('');
     const navigate = useNavigate();
+    // Establecer el color de fondo al cargar la página y no permitir el scroll
+    useEffect(() => {
+        document.body.style.background = `linear-gradient(to bottom, #54a3ff 40%, #ffffff 40%)`; // Establece el color azul de fondo
+        // Deshabilitar scroll
+        document.body.style.overflow = "hidden";
+        // Restaurar scroll al desmontar el componente
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
     // Función para manejar el envío del formulario de restablecimiento.
-    const handleReset = async (e) => {
+    const handleReset = async(e) => {
         e.preventDefault(); // Evita el comportamiento predeterminado del formulario (recargar la página).
         // Verifica si el campo de correo está vacío.
         if(!email){
@@ -51,7 +61,7 @@ const ResetPassword = () => {
                     onChange={(e) => setEmail(e.target.value)}
                 />
                 {/* Botón para enviar el formulario. */}
-                <button type="submit">Enviar correo</button>
+                <button type="submit" className='submit'>Enviar correo</button>
             </form>
         </div>
     );

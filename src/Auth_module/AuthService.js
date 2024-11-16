@@ -11,7 +11,7 @@ export const checkUsernameExists = async(username) => {
     return !querySnapshot.empty; // Retorna `true` si la consulta encuentra un documento; de lo contrario, `false`.
 };
 // Función para verificar si el correo existe en la base de datos
-export const checkEmailExists = async (email) => {
+export const checkEmailExists = async(email) => {
     // Crea una consulta para buscar en la colección 'users' si existe un documento con el campo 'email' proporcionado.
     const q = query(collection(db, "users"), where("email", "==", email));
     const querySnapshot = await getDocs(q);
@@ -77,7 +77,7 @@ export const login = async(usernameOrEmail, password) => {
     }
 };
 // Función para enviar un correo de recuperación de contraseña
-export const resetPassword = async (email) => {
+export const resetPassword = async(email) => {
     try{
         // Envía un correo electrónico para restablecer la contraseña al correo proporcionado.
         await sendPasswordResetEmail(auth, email);

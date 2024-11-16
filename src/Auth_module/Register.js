@@ -1,5 +1,5 @@
 // Register.js es la interfaz encargada del formulario de registro
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {register, checkUsernameExists} from './AuthService';
 import {showError} from '../ShowAlert';
@@ -16,8 +16,18 @@ const Register = () => {
     const[isPasswordVisible, setIsPasswordVisible] = useState(false);
     const[isConfirmPasswordVisible, setIsConfirmPasswordVisible] = useState(false);
     const navigate = useNavigate();
+    // Establecer el color de fondo al cargar la página y no permitir el scroll
+    useEffect(() => {
+        document.body.style.background = `linear-gradient(to bottom, #54a3ff 40%, #ffffff 40%)`; // Establece el color azul de fondo
+        // Deshabilitar scroll
+        document.body.style.overflow = "hidden";
+        // Restaurar scroll al desmontar el componente
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
     // Maneja el evento de envío del formulario.
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault(); // Evita el comportamiento predeterminado del formulario (recargar la página).
         // Verificación de campos obligatorios.
         if(!nombre || !apellido || !username || !email || !password || !confirmPassword){

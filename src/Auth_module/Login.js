@@ -1,5 +1,5 @@
 // Login.js es la interfaz encargada del inicio de sesión
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {login} from './AuthService';
 import { showError } from '../ShowAlert';
@@ -11,8 +11,18 @@ const Login = () => {
     const[password, setPassword] = useState('');
     const[isPasswordVisible, setIsPasswordVisible] = useState(false);
     const navigate = useNavigate();
+    // Establecer el color de fondo al cargar la página y no permitir el scroll
+    useEffect(() => {
+        document.body.style.background = `linear-gradient(to bottom, #54a3ff 40%, #ffffff 40%)`; // Establece el color azul de fondo
+        // Deshabilitar scroll
+        document.body.style.overflow = "hidden";
+        // Restaurar scroll al desmontar el componente
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, []);
     // Maneja el evento de envío del formulario.
-    const handleSubmit = async (e) => {
+    const handleSubmit = async(e) => {
         e.preventDefault(); // Evita el comportamiento predeterminado del formulario (recargar la página).
         try{
             // Intenta autenticar al usuario con los datos proporcionados.
@@ -52,7 +62,7 @@ const Login = () => {
                     </span>
                 </div>
                 {/* Botón para enviar el formulario y autenticar al usuario. */}
-                <button type="submit">Iniciar Sesión</button>
+                <button type="submit" className='submit'>Iniciar Sesión</button>
             </form>
             {/* Enlace para redirigir al formulario de recuperación de contraseña. */}
             <p>

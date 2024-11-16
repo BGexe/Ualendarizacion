@@ -5,7 +5,6 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(to bottom, #54a3ff 40%, #ffffff 40%);
     margin: 0;
     padding: 0;
     display: flex; /* Para usar flexbox */
@@ -19,6 +18,13 @@ body {
     height: auto;
     margin-top: -50px;
     margin-bottom: -20px;
+}
+
+.group {
+    width: auto; /* Cambia el tamaño según necesites */
+    height: 140px;
+    margin-top: -25px;
+    margin-bottom: 0px;
 }
 
 .r-pw-logo {
@@ -126,6 +132,26 @@ input {
     border-radius: 4px;
 }
 
+input:focus{
+    border-color: #54a3ff; /* Mismo color de borde que los inputs al tener foco */
+    outline: none; /* Elimina el borde por defecto en algunos navegadores */
+}
+
+textarea {
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    width: 80%;
+    height: 70px;
+    border-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    text-indent: 7px;
+}
+
+textarea:focus{
+    border-color: #54a3ff; /* Mismo color de borde que los inputs al tener foco */
+    outline: none; /* Elimina el borde por defecto en algunos navegadores */
+}
+
 /* Estilo para los botones generales */
 button {
     width: 80%;
@@ -139,10 +165,27 @@ button {
     box-sizing: border-box; /* Asegura que el borde no afecte el tamaño del botón */
 }
 
+/* Estilo para el select de profesor */
+select {
+    width: 80%; /* Asegura que ocupe el mismo ancho que los inputs */
+    padding: 10px; /* Mismo padding que los inputs */
+    margin: 10px 0; /* Mismo margen que los inputs */
+    border: 1px solid #ddd; /* Borde similar a los inputs */
+    border-radius: 4px; /* Bordes redondeados igual que los inputs */
+    font-size: 0.9rem; /* Establecer tamaño de fuente similar al de los inputs */
+    background-color: white;
+}
+
+/* Estilo cuando el select tiene el foco (cuando el usuario lo selecciona) */
+select:focus {
+    border-color: #54a3ff; /* Mismo color de borde que los inputs al tener foco */
+    outline: none; /* Elimina el borde por defecto en algunos navegadores */
+}
+
 /* Efecto hover para los botones generales */
 button:hover {
     background-color: white;
-    color: #54a3ff;
+    color: var(--hover-color, #54a3ff);
     border-color: #54a3ff; /* El borde ahora aparece dentro del botón */
 }
 
@@ -150,6 +193,10 @@ button:hover {
 button:disabled {
     background-color: #cccccc;
     cursor: not-allowed;
+}
+
+button.submit:hover{
+    color: #54a3ff;
 }
 
 /* Estilo para el botón de registrarse */
@@ -319,4 +366,163 @@ button:disabled {
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1000;
     pointer-events: all;
+}
+
+/* Contenedor principal del perfil */
+.profile-container {
+    height: 100vh; /* Altura completa de la ventana */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Rectángulo azul en la parte superior */
+.header-rectangle {
+    background-color: transparent; /* Azul */
+    width: 100%; /* Ocupa todo el ancho */
+    height: 40vh; /* 30% de la altura de la ventana */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: start; /* Alineado a la izquierda */
+    align-items: center; /* Centrado vertical */
+}
+
+/* Cuadrado gris en el lado izquierdo */
+.profile-picture {
+    background-color: #d3d3d3; /* Gris claro */
+    width: 200px; /* Ancho del cuadrado */
+    height: 200px; /* Altura del cuadrado */
+    border-radius: 10px; /* Bordes ligeramente redondeados */
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Centra el nombre del usuario al pie del cuadrado */
+}
+
+/* Nombre del usuario */
+.user-name {
+    font-size: 24px; /* Ajusta el tamaño de la fuente */
+    font-weight: bold; /* Texto en negrita */
+    color: white; /* Color del texto */
+    position: absolute;
+    left: 110%;
+    top: 72%;
+    white-space: nowrap;
+}
+
+/* Estilo para el botón de cerrar sesión como ícono en un cuadrito en la esquina superior derecha */
+.signout-btn {
+    position: fixed; /* Fija la posición en relación a la ventana */
+    top: 10px; /* Distancia desde el borde superior */
+    right: 10px; /* Distancia desde el borde derecho */
+    width: 40px; /* Tamaño del cuadrado */
+    height: 40px; /* Tamaño del cuadrado */
+    background-color: transparent; /* Fondo azul */
+    color: white; /* Texto blanco */
+    border-radius: 8px; /* Bordes redondeados */
+    border: none;
+    font-size: 20px; /* Tamaño del ícono */
+    display: flex; /* Usamos flexbox para centrar el contenido */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
+    cursor: pointer; /* Cursor de puntero al pasar el mouse */
+    z-index: 100; /* Asegura que el botón esté encima de otros elementos */;
+}
+
+/* Efecto hover para el botón de cerrar sesión */
+.signout-btn:hover {
+    background-color: white; /* Fondo blanco */
+    border: none;
+}
+
+/* Contenedor de botones dentro del header */
+.header-buttons {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    z-index: 20;
+    align-items: center;
+    justify-content: space-between; /* Espaciado uniforme entre los botones */
+}
+
+/* Estilo de los botones */
+.header-button {
+    background-color: transparent; /* Color principal */
+    color: white; /* Color del texto */
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    width: 33.33%; /* Cada botón ocupa el 30% del ancho */
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.header-button .material-icons {
+    margin-right: 8px; /* Espaciado entre el icono y el texto */
+}
+
+.header-button:hover {
+    background-color: white; /* Color al pasar el mouse */
+    border: none;
+}
+
+.edit-profile-container {
+    position: relative;
+    max-width: 600px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.create-public-group-container {
+    position: relative;
+    max-width: 600px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.color-buttons {
+    display: flex;
+    gap: 0px; /* Espaciado entre los botones */
+    margin-bottom: 10px;
+}
+  
+.color-button {
+    width: 33px;
+    height: 33px;
+    border: 2px solid transparent;
+    border-radius: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+  
+.color-button:hover {
+    transform: scale(1.2); /* Efecto de zoom al pasar el mouse */
+    border: none;
+    border-radius: 2px;
+}
+  
+.color-button.selected {
+    border-color: #000; /* Borde negro para el color seleccionado */
 }

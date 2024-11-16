@@ -1,0 +1,322 @@
+/* Estilos comunes */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to bottom, #54a3ff 40%, #ffffff 40%);
+    margin: 0;
+    padding: 0;
+    display: flex; /* Para usar flexbox */
+    justify-content: center; /* Centrado horizontal */
+    align-items: center; /* Centrado vertical */
+    height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la ventana */
+}
+
+.login-logo {
+    width: 160px; /* Cambia el tamaño según necesites */
+    height: auto;
+    margin-top: -50px;
+    margin-bottom: -20px;
+}
+
+.r-pw-logo {
+    width: 90px; /* Cambia el tamaño según necesites */
+    height: auto;
+    margin-top: -50px;
+    margin-bottom: 50px;
+}
+
+/* Contenedor principal para formularios */
+.container {
+    width: 500px;
+    min-height: 450px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Asegura que los elementos dentro del contenedor estén en columna */
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    overflow: hidden;
+}
+
+/* Estilo de los formularios */
+.login-container, .register-container, .reset-password-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Distribuye los elementos de forma ordenada */
+    align-items: center;
+    height: auto;
+}
+
+/* Centrado del título */
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Asegúrate de que el contenedor tenga una posición relativa */
+.reset-password-container {
+    position: relative; /* Necesario para posicionar el botón X dentro de este contenedor */
+    max-width: 600px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo para el botón X en la esquina superior derecha */
+button.close-btn {
+    position: absolute;
+    top: 10px; /* Distancia desde la parte superior */
+    right: 10px; /* Distancia desde la parte derecha */
+    background-color: transparent; /* Fondo transparente */
+    border: none;
+    cursor: pointer;
+    width: 30px; /* Establece el ancho */
+    height: 30px; /* Establece la altura igual al ancho */
+    display: flex; /* Para alinear el contenido (la X) al centro */
+    justify-content: center; /* Centra la X horizontalmente */
+    align-items: center; /* Centra la X verticalmente */
+}
+
+button.close-btn::before,
+button.close-btn::after {
+    content: '';
+    position: absolute;
+    width: 20px; /* Ajusta el tamaño de la línea horizontal */
+    height: 3px; /* Grosor de la línea */
+    background-color: #333; /* Color de la "X" */
+    border-radius: 2px; /* Opcional: redondea ligeramente las esquinas */
+    transition: background-color 0.3s; /* Animación para el cambio de color */
+}
+
+/* Rota las líneas para formar una "X" */
+button.close-btn::before {
+    transform: rotate(45deg);
+}
+
+button.close-btn::after {
+    transform: rotate(-45deg);
+}
+
+/* Efecto hover para cambiar el color de la "X" */
+button.close-btn:hover::before,
+button.close-btn:hover::after {
+    background-color: red;
+}
+
+/* Contenedor de los inputs */
+.input-wrapper {
+    width: 100%; /* Asegura que el contenedor ocupe todo el ancho del padre */
+    display: block;
+    text-align: center;
+}
+
+/* Estilos para los inputs y botones */
+input {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Estilo para los botones generales */
+button {
+    width: 80%;
+    padding: 10px;
+    background-color: #54a3ff;
+    color: white;
+    border: 2px solid transparent; /* Agregamos un borde transparente por defecto */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    box-sizing: border-box; /* Asegura que el borde no afecte el tamaño del botón */
+}
+
+/* Efecto hover para los botones generales */
+button:hover {
+    background-color: white;
+    color: #54a3ff;
+    border-color: #54a3ff; /* El borde ahora aparece dentro del botón */
+}
+
+/* Estilo para los botones deshabilitados */
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Estilo para el botón de registrarse */
+.reg-btn {
+    width: 80%;
+    padding: 10px;
+    background-color: #47d54b; /* Verde */
+    color: white;
+    border: 2px solid transparent; /* Borde transparente */
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    box-sizing: border-box; /* Asegura que el borde no afecte el tamaño del botón */
+}
+
+/* Efecto hover para el botón de registrarse */
+.reg-btn:hover {
+    background-color: white; /* Fondo blanco al pasar el cursor */
+    color: #47d54b; /* Texto verde */
+    border-color: #47d54b; /* Borde verde */
+}
+
+/* Estilo para los botones deshabilitados */
+.reg-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+/* Estilo de la ventana de error */
+.error {
+    background-color: red;
+    color: white;
+    padding: 1em;
+    margin-top: 1em;
+    border-radius: 5px;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1010;
+    max-width: 450px;
+    height: 200px;
+    width: 80%;
+    display: flex; /* Usamos flexbox */
+    flex-direction: column; /* Coloca los elementos en columna */
+    justify-content: center; /* Centrado vertical */
+    align-items: center; /* Centrado horizontal */
+}
+
+/* Estilo del botón de la alerta */
+.error button {
+    background-color: white;
+    color: red;
+    padding: 0.5em 1em;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    box-sizing: border-box;
+    align-self: center;
+}
+
+.error button:hover {
+    background-color: red;
+    color: white;
+    border: 2px solid white;
+}
+
+.success {
+    background-color: #47d54b; /* Cambiado a verde */
+    color: white;
+    padding: 1em;
+    margin-top: 1em;
+    border-radius: 5px;
+    text-align: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1010;
+    max-width: 450px;
+    height: 200px;
+    width: 80%;
+    display: flex; /* Usamos flexbox */
+    flex-direction: column; /* Coloca los elementos en columna */
+    justify-content: center; /* Centrado vertical */
+    align-items: center; /* Centrado horizontal */
+}
+
+/* Estilo del botón de la alerta */
+.success button {
+    background-color: white;
+    color: #47d54b; /* Cambiado a verde */
+    padding: 0.5em 1em;
+    border: 2px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    box-sizing: border-box;
+    align-self: center;
+}
+
+.success button:hover {
+    background-color: #47d54b; /* Cambiado a verde */
+    color: white;
+    border: 2px solid white;
+}
+
+/* Estilo para los botones de tipo enlace */
+.button-link {
+    background-color: transparent; /* Sin fondo */
+    color: blue; /* Color de texto azul */
+    text-decoration: none; /* Subrayado para parecer un enlace */
+    border: none; /* Sin borde */
+    padding: 0; /* Sin relleno adicional */
+    cursor: pointer; /* Cambia el cursor para indicar que es clickeable */
+    font-size: 1rem; /* Ajusta el tamaño del texto */
+    display: inline-block;
+}
+
+/* Efecto hover para los botones de tipo enlace */
+.button-link:hover {
+    color: violet; /* Cambia a un azul más oscuro al pasar el cursor */
+    text-decoration: none; /* Mantiene el subrayado */
+}
+
+.password-container {
+    position: relative;
+    width: 80%;
+    box-sizing: border-box;
+    left: 10%;
+}
+
+.password-container input {
+    width: 100%;
+    padding-right: 2.5rem; /* Espacio para el icono */
+    padding-left: 0.5rem; /* Espaciado interno para el texto */
+    height: 2.5rem; /* Altura consistente */
+    border: 1px solid #ddd; /* Borde gris claro */
+    border-radius: 4px; /* Bordes redondeados */
+    box-sizing: border-box; /* Incluye el padding y el borde en el tamaño total */
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: gray; /* Color gris del ojo */
+}
+
+.toggle-password:hover {
+    color: black; /* Cambiar color al pasar el mouse */
+}
+
+/* Fondo difuminado */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    pointer-events: all;
+}

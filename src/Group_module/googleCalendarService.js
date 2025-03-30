@@ -73,56 +73,33 @@ export const createEventInGoogleCalendar = async (eventDetails) => {
     }
 };
 
-export const sendEventInvitationEmails = async (eventId, groupId, eventDetails) => {
+export const sendEmailsForEvent = async (groupId, eventId, eventDetails) => {
     try {
-        // Obtener el grupo de Firestore
-        const groupRef = doc(db, "GrupoPublico", groupId);
-        let groupSnap = await getDoc(groupRef);
+        // Obtener correos de usuarios desde Firestore
+        const usersSnapshot = await firestore.collection("users")
+            .where("uid", "in", eventDetails.userIds)
+            .get();
 
-        if (!groupSnap.exists()) {
-            // Si no está en GrupoPublico, buscar en GrupoPrivado
-            const privateGroupRef = doc(db, "GrupoPrivado", groupId);
-            groupSnap = await getDoc(privateGroupRef);
-            if (!groupSnap.exists()) {
-                throw new Error("No se encontró el grupo.");
-            }
-        }
+        const emails = usersSnapshot.docs.map(doc => doc.data().email);
 
-        const groupData = groupSnap.data();
-        const userUids = groupData.Usuarios || [];
+        const response = await fetch("https://ualendarizacion-production.up.railway.app/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                emails,
+                eventName: eventDetails.summary,
+                eventDate: eventDetails.start.dateTime.split("T")[0],
+                eventTime: eventDetails.start.dateTime.split("T")[1],
+                eventDescription: eventDetails.description,
+            }),
+        });
 
-        if (userUids.length === 0) {
-            console.log("No hay usuarios en el grupo.");
-            return;
-        }
+        const data = await response.json();
+        console.log("Correos enviados:", data);
 
-        // Obtener correos electrónicos de los usuarios en la colección users
-        const usersQuery = query(collection(db, "users"), where("__name__", "in", userUids));
-        const usersSnap = await getDocs(usersQuery);
-        const emails = usersSnap.docs.map(doc => doc.data().email).filter(email => email);
-
-        if (emails.length === 0) {
-            console.log("No se encontraron correos de los usuarios.");
-            return;
-        }
-
-        // Construir el enlace para agregar el evento a Google Calendar
-        const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.summary)}&details=${encodeURIComponent(eventDetails.description)}&dates=${eventDetails.start.dateTime.replace(/[-:]/g, "").slice(0, -1)}/${eventDetails.end.dateTime.replace(/[-:]/g, "").slice(0, -1)}`;
-
-        // Enviar correos con el enlace
-        for (const email of emails) {
-            await sendEmail(email, googleCalendarLink);
-        }
-
-        console.log("Correos enviados exitosamente.");
     } catch (error) {
-        console.error("Error al enviar invitaciones por correo:", error);
+        console.error("Error al enviar correos:", error);
     }
-};
-
-// Simulación de envío de correo (deberás usar una API real como SendGrid, Nodemailer, Firebase Functions, etc.)
-const sendEmail = async (recipientEmail, eventLink) => {
-    console.log(`📧 Enviando correo a: ${recipientEmail}`);
-    console.log(`🔗 Link del evento: ${eventLink}`);
-    // Aquí iría la lógica real para enviar el correo
 };

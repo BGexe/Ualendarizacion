@@ -13,7 +13,7 @@ const firebaseConfig = {
     measurementId: "G-BT3T7W4247"
 };
 // Inicialización de Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 // Inicialización del servicio de autenticación de Firebase con la aplicación inicializada
 export const auth = getAuth(app);
 // Inicializa el servicio Firestore de Firebase, que permite la interacción con la base de datos de Firestore.

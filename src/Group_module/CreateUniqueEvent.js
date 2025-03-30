@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../Firebase";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, doc, getDoc } from "firebase/firestore";
 import { showError, showSuccess } from "../ShowAlert";
 import "../style.css";
 import { initializeGoogleApi, signInToGoogle, createEventInGoogleCalendar, sendEventInvitationEmails } from "./googleCalendarService"; // ✅ Importar la nueva función
@@ -41,20 +41,42 @@ const CreateUniqueEvent = () => {
     const handleCreateEvent = async () => {
         const selectedGroup = JSON.parse(localStorage.getItem("selectedGroup"));
         if (!selectedGroup || !selectedGroup.id) {
-            showError("No se ha seleccionado un grupo.");
+            showError("No se ha seleccionado un grupo válido.");
             return;
         }
-
+    
         if (!eventName || !description || !eventDate || !eventTime) {
             showError("Por favor, complete todos los campos.");
             return;
         }
-
+    
         try {
             const email = await signInToGoogle();
             setUserEmail(email);
-            console.log("Usuario autenticado:", userEmail);
-
+            console.log("Usuario autenticado:", email);
+    
+            let groupRef = doc(db, "GrupoPublico", selectedGroup.id);
+            let groupSnap = await getDoc(groupRef);
+    
+            // 🔍 Si no existe en GrupoPublico, buscar en GrupoPrivado
+            if (!groupSnap.exists()) {
+                console.log("Grupo no encontrado en GrupoPublico, buscando en GrupoPrivado...");
+                groupRef = doc(db, "GrupoPrivado", selectedGroup.id);
+                groupSnap = await getDoc(groupRef);
+    
+                if (!groupSnap.exists()) {
+                    throw new Error("El grupo seleccionado no existe en ninguna colección.");
+                }
+            }
+    
+            // 🔥 Obtener los UID de los usuarios en el grupo
+            const userIds = groupSnap.data().Usuarios || [];
+    
+            if (userIds.length === 0) {
+                throw new Error("No hay usuarios en este grupo.");
+            }
+    
+            // 🔥 Guardar el evento en Firestore
             const eventRef = await addDoc(collection(db, "Evento"), {
                 id_grupo: selectedGroup.id,
                 nombre_evento: eventName,
@@ -63,13 +85,14 @@ const CreateUniqueEvent = () => {
                 dia_evento: eventDate,
                 hora_evento: eventTime,
                 usuario: email,
+                userIds, // 🔥 Agregar los UID al evento
             });
-
+    
             console.log("Evento creado en Firestore:", eventRef.id);
-
+    
             const dateTimeStart = `${eventDate}T${eventTime}:00`;
             const dateTimeEnd = `${eventDate}T${eventTime}:00`;
-
+    
             const eventDetails = {
                 summary: eventName,
                 description: description,
@@ -81,13 +104,15 @@ const CreateUniqueEvent = () => {
                     dateTime: dateTimeEnd,
                     timeZone: "America/Mexico_City",
                 },
+                userIds, // 🔥 Pasar los usuarios a Google Calendar
             };
-
-            //const createdEvent = await createEventInGoogleCalendar(eventDetails);
+    
             await createEventInGoogleCalendar(eventDetails);
             console.log("Evento creado en Google Calendar.");
+    
+            // 🔥 Enviar correos con los userIds correctos
             await sendEventInvitationEmails(eventRef.id, selectedGroup.id, eventDetails);
-            
+    
             showSuccess("Evento creado en Firestore y Google Calendar.");
             setEventName("");
             setDescription("");
@@ -96,7 +121,6 @@ const CreateUniqueEvent = () => {
             navigate(`/Group/${selectedGroup.id}`);
         } catch (error) {
             console.error("Error al crear el evento:", error);
-            console.error("Detalles del error:", JSON.stringify(error, null, 2));
             showError(`Error: ${error.message || "Hubo un error inesperado."}`);
         }
     };

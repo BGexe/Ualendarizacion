@@ -1,6 +1,10 @@
 import { gapi } from "gapi-script";
 import { db } from "../Firebase";
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+//import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
+import { app } from "../Firebase"; // Asegúrate de importar tu configuración de Firebase
+
+const firestore = getFirestore(app); // Inicializar Firestore
 
 export const initializeGoogleApi = async () => {
     return new Promise((resolve, reject) => {
@@ -73,33 +77,54 @@ export const createEventInGoogleCalendar = async (eventDetails) => {
     }
 };
 
-export const sendEmailsForEvent = async (groupId, eventId, eventDetails) => {
-    try {
-        // Obtener correos de usuarios desde Firestore
-        const usersSnapshot = await firestore.collection("users")
-            .where("uid", "in", eventDetails.userIds)
-            .get();
+//export const sendEventInvitationEmails = async (groupId, eventId, eventDetails) => {
 
-        const emails = usersSnapshot.docs.map(doc => doc.data().email);
+    export const sendEventInvitationEmails = async (eventId, groupId, eventDetails) => {
+        try {
+            if (!eventDetails.userIds || eventDetails.userIds.length === 0) {
+                console.error("❌ Error: La lista de usuarios está vacía.");
+                return;
+            }
+    
+            // Obtener correos de usuarios desde Firestore
+            const usersQuery = query(
+                collection(firestore, "users"),
+                where("uid", "in", eventDetails.userIds)
+            );
+    
+            const usersSnapshot = await getDocs(usersQuery);
+            
+            if (usersSnapshot.empty) {
+                console.error("❌ No se encontraron usuarios con los IDs proporcionados.");
+                return;
+            }
+    
+            const emails = usersSnapshot.docs.map(doc => doc.data().email);
+            console.log("📩 Correos a enviar:", emails);
+    
+            const response = await fetch("https://ualendarizacion-production.up.railway.app/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    emails,
+                    eventName: eventDetails.summary,
+                    eventDate: eventDetails.start.dateTime.split("T")[0],
+                    eventTime: eventDetails.start.dateTime.split("T")[1],
+                    eventDescription: eventDetails.description,
+                }),
+                mode: 'no-cors',
+            });
+    
+            if (!response.ok) {
+                // Si la respuesta no es 200, lanzamos un error
+                const errorText = await response.text();
+                throw new Error(`Error al enviar el correo: ${response.status} - ${errorText}`);
+            }
 
-        const response = await fetch("https://ualendarizacion-production.up.railway.app/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                emails,
-                eventName: eventDetails.summary,
-                eventDate: eventDetails.start.dateTime.split("T")[0],
-                eventTime: eventDetails.start.dateTime.split("T")[1],
-                eventDescription: eventDetails.description,
-            }),
-        });
-
-        const data = await response.json();
-        console.log("Correos enviados:", data);
-
-    } catch (error) {
-        console.error("Error al enviar correos:", error);
-    }
-};
+            const data = await response.json();
+            console.log("✅ Correos enviados:", data);
+    
+        } catch (error) {
+            console.error("❌ Error al enviar correos:", error);
+        }
+    };

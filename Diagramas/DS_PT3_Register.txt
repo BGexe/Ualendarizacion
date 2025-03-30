@@ -1,0 +1,103 @@
+title 0.- Secuencias desde IU #0 Register
+
+actor User
+participant "Register.js" as Register
+participant "AuthService.js" as AuthService
+participant "firebase/auth" as FirebaseAuth
+participant "firebase/firestore" as Firestore
+participant "react-router-dom" as Router
+participant "App.js" as App
+participant "ShowAlert.js" as ShowAlert
+
+Router -> App:Pasa ruta '/Register'
+App->Register:<Register />
+Register-->App:jsx
+App->User:Muestra interfaz 0
+
+alt El usuario hace click en 'Registrarse'
+    User -> Register:Hace click en botón 'Registrarse'
+    alt Si hay campos faltantes
+        Register -> ShowAlert:await showError(\n "Completa los campos:[campos]"\n)
+        ShowAlert -> User:Muestra interfaz 11
+        User -> ShowAlert:Hace click en botón 'Ok'
+        ShowAlert -> User:Desaparece popup
+        ShowAlert --> Register:Return
+        == Ir a Secuencias desde IU #0 Register ==
+    else Si no hay campos faltantes
+        alt Si las contraseñas no coinciden
+            Register -> ShowAlert:await showError(\n "Las contraseñas no coinciden"\n)
+            ShowAlert -> User:Muestra interfaz 11
+            User -> ShowAlert:Hace click en botón 'Ok'
+            ShowAlert -> User:Desaparece popup
+            ShowAlert --> Register:Return
+            == Ir a Secuencias desde IU #0 Register ==
+        else Si las contraseñas coinciden
+            Register -> AuthService:await checkUsernameExists(username)
+            AuthService -> Firestore:await getDocs(\n query(\n  collection(db, "users"),\n  where("username", "==", username)\n )\n)
+            alt Si el nombre de usuario existe
+                Firestore --> AuthService:Return querySnapshot
+                AuthService --> Register:Return 'true'
+                Register -> ShowAlert:await showError(\n "El nombre de usuario ya está en uso"\n)
+                ShowAlert -> User:Muestra interfaz 11
+                User -> ShowAlert:Hace click en botón 'Ok'
+                ShowAlert -> User:Desaparece popup
+                ShowAlert --> Register:Return
+                == Ir a Secuencias desde IU #0 Register ==
+            else Si el nombre de usuario no existe
+                Firestore --> AuthService:Return null
+                AuthService --> Register:Return 'false'
+                Register -> AuthService:await register(\n username,\n nombre,\n apellido,\n email,\n password,\n profileBase64\n)    
+                    AuthService -> FirebaseAuth:await createUserWithEmailAndPassword(\n auth,\n email,\n password\n)
+                alt ocurre un error durante el await
+                    FirebaseAuth --> AuthService:throw error
+                    == Ir a opt [Si ocurre un error durante el registro] ==
+                else await createUSerWithEmailAndPassword no genera error 
+                    FirebaseAuth --> AuthService:Return
+                        AuthService -> FirebaseAuth:await updateProfile(\n userCredential.user,\n {displayName:`${nombre} ${apellido}`,}\n)
+                    alt ocurre un error durante el await
+                        FirebaseAuth --> AuthService:throw error
+                        == Ir a opt [Si ocurre un error durante el registro] ==
+                    else await updateProfile no genera error
+                        FirebaseAuth --> AuthService:Return
+                            AuthService -> FirebaseAuth:await sendEmailVerification(\n user\n)
+                        alt ocurre un error durante el await
+                            FirebaseAuth --> AuthService:throw error
+                            == Ir a opt [Si ocurre un error durante el registro] ==
+                        else await sendEmailVerification no genera error
+                            FirebaseAuth --> AuthService:Return
+                                AuthService->Firestore:await setDoc(\n doc(db, "users", user.uid),\n {\n  username,\n  nombre,\n  apellido,\n  email,\n  password,\n  photoBase64:profileBase64,\n  headerColor:"#54a3ff",\n  createdAt:new Date(),\n }\n)
+                            alt ocurre un error durante el await
+                                Firestore --> AuthService:throw error
+                                == Ir a opt [Si ocurre un error durante el registro] ==
+                            else await setDoc no genera error
+                                Firestore --> AuthService:Return
+                            AuthService->ShowAlert:await showSuccess(\n "Se ha enviado un correo de verificación.\n Por favor,\n verifica tu correo antes de iniciar sesión."\n)
+                            ShowAlert -> User:Muestra interfaz 11
+                            User -> ShowAlert:Hace click en botón 'Ok'
+                            ShowAlert -> User:Desaparece popup
+                            ShowAlert --> AuthService:Return
+                                AuthService --> Register:Return
+                                Register -> Router:navigate('/')
+                                
+                                == Ir a Secuencias desde IU #1 Login ==
+                            end
+                        end
+                    end
+                end
+                opt Si ocurre un error durante el registro
+                    AuthService --> Register:throw error(\n "Falló el registro. Inténtelo de nuevo."\n)
+                    Register -> ShowAlert:await showError(\n error.message\n)
+                    ShowAlert -> User:Muestra interfaz 11
+                    User -> ShowAlert:Hace click en botón 'Ok'
+                    ShowAlert -> User:Desaparece popup
+                    ShowAlert --> Register:Return
+                    == Ir a Secuencias desde IU #0 Register ==
+                end
+            end
+        end
+    end
+else El usuario hace click en 'Iniciar sesión'
+    User -> Register:Hace click en enlace 'Iniciar sesión'
+    Register -> Router:navigate('/')
+    == Ir a Secuencias desde IU #1 Login ==
+end

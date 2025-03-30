@@ -1,10 +1,11 @@
+// EditProfile.js ayuda al usuario a editar sus datos personales
 import React, {useState, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
-import {updateUserProfile, getUserData} from "./UserService"; // Asegúrate de importar correctamente
+import {updateUserProfile, getUserData} from "./UserService";
 import {auth} from "../Firebase";
 import {showError, showSuccess} from "../ShowAlert";
 import "../style.css";
-
+// Funcion principal de EditProfile
 const EditProfile = () => {
     const[color, setColor] = useState("#54a3ff");
     const[firstName, setFirstName] = useState("");
@@ -24,44 +25,41 @@ const EditProfile = () => {
         {value: "#3288bd", label: "Azul"},
         {value: "#5e4fa2", label: "Morado"},
     ];
-    // Cargar datos del usuario
+
     useEffect(() => {
-        const fetchData = async() => {
-            try{
-                const userData = await getUserData(auth.currentUser?.uid);
-                const userColor = userData?.headerColor;
-                setColor(userData?.headerColor);
-                document.body.style.background = `linear-gradient(to bottom, ${userColor} 40%, #ffffff 40%)`;
-            }
-            catch(error){
-                showError("Error al cargar los datos del usuario:", error);
-            }
-        };
-        fetchData();
-    }, []);
-    // Deshabilitar y habilitar scroll
-    useEffect(() => {
-        // Deshabilitar scroll
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        if(storedUser){
+            document.body.style.background = `linear-gradient(to bottom, ${storedUser.headerColor || "#54a3ff"} 40%, #ffffff 40%)`;
+        }
         document.body.style.overflow = "hidden";
-        // Restaurar scroll al desmontar el componente
         return () => {
             document.body.style.overflow = "auto";
         };
     }, []);
+
+    // Función para actualizar el color del header
+    const updateHeaderColor = (color) => {
+        document.body.style.background = `linear-gradient(to bottom, ${color} 40%, #ffffff 40%)`;
+        setColor(color);
+    };
     // Manejar la actualización del perfil
-    const handleUpdate = async() => {
+    const handleUpdate = async () => {
         const uid = auth.currentUser?.uid;
         if(!uid){
             showError("El usuario no está autenticado.");
             return;
         }
         try{
-            await updateUserProfile(uid, firstName, lastName, { headerColor: color });
+            await updateUserProfile(uid, firstName, lastName, null, { headerColor: color });
             showSuccess("Se guardaron los cambios al perfil.");
-            // Guardar el nuevo color en localStorage
-            localStorage.setItem('headerColor', color);
-            // Actualizar el color de fondo en el body
-            document.body.style.background = `linear-gradient(to bottom, ${color} 40%, #ffffff 40%)`;
+            const updatedUser = await getUserData(uid);
+            const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+            const newUser = {
+                ...storedUser,
+                ...updatedUser,
+                uid,
+            };
+            localStorage.setItem('user', JSON.stringify(newUser));
             navigate("/Profile");
         }
         catch(error){
@@ -70,12 +68,12 @@ const EditProfile = () => {
         }
     };
     return(
-        <div className="edit-profile-container container">
+        <div className="container">
             <button
                 className="close-btn"
                 onClick={() => navigate("/Profile")}
             >X</button>
-            <img src="/images/profile.png" alt="Logo" className="login-logo"/>
+            <img src="/images/profile.png" alt="Logo" className="icon"/>
             {/* Selección de color */}
             <div className="color-selector">
                 <div className="color-buttons">
@@ -86,7 +84,7 @@ const EditProfile = () => {
                                 color === colorOption.value ? "selected" : ""
                             }`}
                             style={{ backgroundColor: colorOption.value }}
-                            onClick={() => setColor(colorOption.value)}
+                            onClick={() => updateHeaderColor(colorOption.value)}
                             title={colorOption.label}
                         />
                     ))}

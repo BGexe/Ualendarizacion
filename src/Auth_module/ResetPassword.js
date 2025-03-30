@@ -26,29 +26,23 @@ const ResetPassword = () => {
             showError("Por favor, ingresa tu correo electrónico.");
             return;
         }
-        try{
-            // Verifica si el correo electrónico está registrado en la base de datos.
-            const user = await checkEmailExists(email);
-            if(!user){
-                showError("El correo electrónico no está registrado.");
-                return;
-            }
-            // Envía el correo para restablecer la contraseña.
-            await resetPassword(email);
-            await showSuccess("Te hemos enviado un correo para restablecer tu contraseña.");
-            // Redirige al usuario a la página principal después de enviar el correo.
-            navigate('/');
+        // Verifica si el correo electrónico está registrado en la base de datos.
+        const user = await checkEmailExists(email);
+        if(!user){
+            showError("El correo electrónico no está registrado.");
+            return;
         }
-        catch(error){
-            // Muestra un mensaje de error si ocurre algún problema durante el proceso.
-            showError("Error: " + error.message);
-        }
+        // Envía el correo para restablecer la contraseña.
+        await resetPassword(email);
+        await showSuccess("Te hemos enviado un correo para restablecer tu contraseña.");
+        // Redirige al usuario a la página principal después de enviar el correo.
+        navigate('/');
     };
     return(
         // Contenedor principal del formulario de restablecimiento de contraseña.
-        <div className='reset-password-container container'>
+        <div className='container container'>
             {/* Muestra una imagen representativa para la página de restablecimiento de contraseña. */}
-            <img src="/images/r-pw.png" alt="Logo" className="r-pw-logo"/>
+            <img src="/images/r-pw.png" alt="Logo" className="icon"/>
             {/* Botón para cerrar o salir del formulario, redirigiendo a la página de inicio de sesión. */}
             <button onClick={() => navigate('/')} className="close-btn">X</button>
             {/* Formulario de restablecimiento de contraseña. */}

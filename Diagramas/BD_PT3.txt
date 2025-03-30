@@ -1,0 +1,75 @@
+@startuml
+' Definición de las entidades '
+
+entity Users{
+  +username: String
+  email: String
+  password: String
+  nombre: String
+  apellido: String
+  headerColor: String
+  profesor: bool
+  photoBase64: String
+  UsuarioGrupo: array[String]
+  createdAt: date
+}
+
+entity GrupoPublico{
+  +clave_uea: String
+  nombre_uea: String
+  grupo_uea: String
+  descripcion: String
+  headerColor: String
+  profesor: String <<FK>>
+  id_trimestre: String
+  Usuarios: array[String]
+}
+
+entity GrupoPrivado{
+  +id_grupo: String
+  nombre_uea: String
+  descripcion: String
+  profesor: String
+  headerColor: String
+  Usuarios: array[String]
+}
+
+entity Evento{
+  +id_evento: int
+  id_grupo: String <<FK>>
+  nombre_evento: String
+  descripcion: String
+  es_ciclico: bool
+  dia_evento: Date
+  aula: String
+  hora_evento: time
+  domingo: time
+  lunes: time
+  martes: time
+  miercoles: time
+  jueves: time
+  viernes: time
+  sabado: time
+}
+
+entity Trimestre{
+  +id_trimestre: String
+  inicio_trimestre: Date
+  fin_trimestre: Date
+  createdAt: Date
+}
+
+entity Dia_Feriado{
+  +id: String
+  fecha: Date
+}
+
+' Relaciones entre entidades '
+
+Users }o--o{ GrupoPrivado
+Users }o--o{ GrupoPublico
+GrupoPublico ||--o{ Evento
+GrupoPrivado ||--o{ Evento
+Trimestre ||--o{ GrupoPublico
+Dia_Feriado }o--|| Trimestre
+@enduml

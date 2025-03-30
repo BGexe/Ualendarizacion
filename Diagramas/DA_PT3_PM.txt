@@ -1,0 +1,176 @@
+direction: down
+app_js: "app_js\n(40 lines)" {
+  style: {stroke-width: 2}
+  shape: "rectangle"
+}
+error404_js: "error404_js\n(13 lines)" {
+  style: {stroke-width: 1}
+  shape: "rectangle"
+}
+firebase_js: "firebase_js\n(20 lines)" {
+  style: {stroke-width: 1}
+  shape: "rectangle"
+}
+profile_module_createprivategroup_js: "profile_module_createprivategroup_js\n(109 lines)" {
+  style: {stroke-width: 3}
+  shape: "rectangle"
+}
+profile_module_createpublicgroup_js: "profile_module_createpublicgroup_js\n(219 lines)" {
+  style: {stroke-width: 5}
+  shape: "rectangle"
+}
+profile_module_editprofile_js: "profile_module_editprofile_js\n(108 lines)" {
+  style: {stroke-width: 3}
+  shape: "rectangle"
+}
+profile_module_profile_js: "profile_module_profile_js\n(393 lines)" {
+  style: {stroke-width: 7}
+  shape: "rectangle"
+}
+profile_module_userservice_js: "profile_module_userservice_js\n(32 lines)" {
+  style: {stroke-width: 1}
+  shape: "rectangle"
+}
+showalert_js: "showalert_js\n(47 lines)" {
+  style: {stroke-width: 2}
+  shape: "rectangle"
+}
+index_js: "index_js\n(15 lines)" {
+  style: {stroke-width: 1}
+  shape: "rectangle"
+}
+style_css: "style_css\n(843 lines)" {
+  style: {stroke-width: 15}
+  shape: "rectangle"
+}
+react: "react" {
+  style: {stroke-width: 1}
+  shape: "hexagon"
+}
+react-router-dom: "react-router-dom" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+firebase_auth: "firebase_auth" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+firebase_firestore: "firebase_firestore" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+firebase_app: "firebase_app" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+browser-image-compression: "browser-image-compression" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+react-dom_client: "react-dom_client" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+app_js -> react: "React" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+app_js -> react-router-dom: "Router,\nRoute,\nRoutes" {
+  style: {
+    stroke: "#CA4245"
+    stroke-dash: 5
+  }
+}
+app_js -> profile_module_profile_js: "Profile" {style: {stroke: "#808080"}}
+app_js -> profile_module_editprofile_js: "EditProfile" {style: {stroke: "#808080"}}
+app_js -> profile_module_createpublicgroup_js: "CreatePublicGroup" {style: {stroke: "#808080"}}
+app_js -> profile_module_createprivategroup_js: "CreatePrivateGroup" {style: {stroke: "#808080"}}
+app_js -> error404_js: "Error404" {style: {stroke: "#808080"}}
+error404_js -> react: "React" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+firebase_js -> firebase_app: "initializeApp" {style: {stroke: "#808080"}}
+firebase_js -> firebase_auth: "getAuth" {style: {stroke: "#808080"}}
+firebase_js -> firebase_firestore: "getFirestore" {style: {stroke: "#808080"}}
+profile_module_createprivategroup_js -> react: "React,\nuseState" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+profile_module_createprivategroup_js -> react-router-dom: "useNavigate" {
+  style: {
+    stroke: "#CA4245"
+    stroke-dash: 5
+  }
+}
+profile_module_createprivategroup_js -> firebase_js: "db,\nauth" {style: {stroke: "#808080"}}
+profile_module_createprivategroup_js -> firebase_firestore: "doc,\nsetDoc,\nupdateDoc,\narrayUnion" {style: {stroke: "#808080"}}
+profile_module_createprivategroup_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
+profile_module_createprivategroup_js -> style_css: {style: {stroke: "#808080"}}
+profile_module_createpublicgroup_js -> react: "React,\nuseState,\nuseEffect" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+profile_module_createpublicgroup_js -> react-router-dom: "useNavigate" {
+  style: {
+    stroke: "#CA4245"
+    stroke-dash: 5
+  }
+}
+profile_module_createpublicgroup_js -> firebase_js: "db,\nauth" {style: {stroke: "#808080"}}
+profile_module_createpublicgroup_js -> firebase_firestore: "doc,\nsetDoc,\nquery,\nwhere,\ncollection,\ngetDocs,\ngetDoc,\norderBy,\nlimit" {style: {stroke: "#808080"}}
+profile_module_createpublicgroup_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
+profile_module_createpublicgroup_js -> style_css: {style: {stroke: "#808080"}}
+profile_module_editprofile_js -> react: "React,\nuseState,\nuseEffect" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+profile_module_editprofile_js -> react-router-dom: "useNavigate" {
+  style: {
+    stroke: "#CA4245"
+    stroke-dash: 5
+  }
+}
+profile_module_editprofile_js -> profile_module_userservice_js: "updateUserProfile,\ngetUserData" {style: {stroke: "#808080"}}
+profile_module_editprofile_js -> firebase_js: "auth" {style: {stroke: "#808080"}}
+profile_module_editprofile_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
+profile_module_editprofile_js -> style_css: {style: {stroke: "#808080"}}
+profile_module_profile_js -> react: "React,\nuseState,\nuseEffect,\nuseRef,\nuseCallback" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+profile_module_profile_js -> react-router-dom: "useNavigate" {
+  style: {
+    stroke: "#CA4245"
+    stroke-dash: 5
+  }
+}
+profile_module_profile_js -> firebase_js: "auth,\ndb" {style: {stroke: "#808080"}}
+profile_module_profile_js -> firebase_firestore: "collection,\nquery,\nwhere,\ngetDocs,\ngetDoc,\ndeleteDoc,\ndoc,\nlimit,\nupdateDoc" {style: {stroke: "#808080"}}
+profile_module_profile_js -> firebase_auth: "signOut" {style: {stroke: "#808080"}}
+profile_module_profile_js -> browser-image-compression: "imageCompression" {style: {stroke: "#808080"}}
+profile_module_profile_js -> profile_module_userservice_js: "updateUserProfile,\ngetUserData" {style: {stroke: "#808080"}}
+profile_module_profile_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
+profile_module_profile_js -> style_css: {style: {stroke: "#808080"}}
+profile_module_userservice_js -> firebase_firestore: "doc,\nupdateDoc,\ngetDoc" {style: {stroke: "#808080"}}
+profile_module_userservice_js -> firebase_js: "db" {style: {stroke: "#808080"}}
+index_js -> react: "React" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+index_js -> react-dom_client: "ReactDOM" {style: {stroke: "#808080"}}
+index_js -> app_js: "App" {style: {stroke: "#808080"}}

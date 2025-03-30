@@ -1,0 +1,148 @@
+@startuml
+
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 100
+
+' CÓDIGOS '
+
+folder src <<Orange>>{
+    class "App.js" as App {
+        +App(): void
+    }
+
+    class "Firebase.js" as Firebase {
+        -app(initializeApp: firebaseConfig)
+        +auth(getAuth: app)
+        +db(getFirestore: app)
+    }
+
+    class "Error404.js" as Error404 {
+        +Error404(): string
+    }
+
+    class "ShowAlert.js" as ShowAlert {
+        +showError(message: string): void
+        +showSuccess(message: string): void
+    }
+
+    class "style.css" as style {
+        
+    }
+
+    folder AuthModule <<Azul>>{
+        class "AuthService.js" as AuthService {
+            +checkUsernameExists(username: String): bool
+            +checkEmailExists(email: String): bool
+            +register(user: User): void
+            +login(user: User): user
+            +resetPassword(email: String): void
+        }
+
+        class "Register.js" as Register {
+            +Register(user: User): bool
+        }
+
+        class "Login.js" as Login {
+            +Login(user: User): bool
+        }
+
+        class "ResetPassword.js" as ResetPassword {
+            +ResetPassword(email: String): void
+        }
+    }
+} 
+
+' IMPORTS '
+rectangle Imports {
+    entity "firebase/app" as firebase\app {
+        +initializeApp()
+    }
+
+    entity "firebase/auth" as firebase\auth {
+        +getAuth()
+        +createUserWithEmailAndPassword()
+        +signInWithEmailAndPassword()
+        +sendEmailVerification()
+        +sendPasswordResetEmail()
+        +updateProfile()
+        +signOut()
+    }
+
+    entity "firebase/firestore" as firebase\firestore {
+        +getFirestore()
+        +setDoc()
+        +doc()
+        +collection()
+        +query()
+        +where()
+        +getDocs()
+        +deleteDoc()
+        +updateDoc()
+        +orderBy()
+        +limit()
+    }
+
+    entity react {
+        +React()
+        +useState()
+        +useEffect()
+        +useRef()
+    }
+
+    entity "react-router-dom" as react\router\dom {
+        +useNavigate()
+        +BrowserRouter()
+        +Router()
+        +Route()
+        +Routes()
+    }
+}
+
+' RELACIONES '
+' Relaciones con modulos externos '
+
+firebase\app <-[#black]- Firebase
+firebase\auth <-[#red]- AuthService
+firebase\auth <-[#red]- Firebase
+firebase\firestore <-[#blue]- AuthService
+firebase\firestore <-[#blue]- Firebase
+react <-[#green]- App
+react <-[#green]- Login
+react <-[#green]- Register
+react <-[#green]- ResetPassword
+react\router\dom <-[#pink]- App
+react\router\dom <-[#pink]- Login
+react\router\dom <-[#pink]- Register
+react\router\dom <-[#pink]- ResetPassword
+
+' Relaciones con modulos internos '
+
+AuthService <-- Login
+AuthService <-- Register
+AuthService <-- ResetPassword
+Error404 <-- App
+Login <-- App
+Register <-- App
+ResetPassword <-- App
+ShowAlert <-- AuthService
+ShowAlert <-- Login
+ShowAlert <-- Register
+ShowAlert <-- ResetPassword
+style <-- Login
+style <-- Register
+style <-- ResetPassword
+
+skinparam folder<<Orange>> {
+    BackgroundColor orange
+}
+
+skinparam folder<<Azul>> {
+    BackgroundColor skyblue
+}
+
+skinparam folder<<Verde>> {
+    BackgroundColor lightgreen
+}
+
+@enduml

@@ -1,0 +1,162 @@
+@startuml
+
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 100
+
+' CÓDIGOS '
+
+folder src <<Orange>>{
+    class "App.js" as App {
+        +App(): void
+    }
+
+    class "Firebase.js" as Firebase {
+        -app(initializeApp: firebaseConfig)
+        +auth(getAuth: app)
+        +db(getFirestore: app)
+    }
+
+    class "Error404.js" as Error404 {
+        +Error404(): string
+    }
+
+    class "ShowAlert.js" as ShowAlert {
+        +showError(message: string): void
+        +showSuccess(message: string): void
+    }
+
+    class "style.css" as style {
+        
+    }
+
+    folder ProfileModule <<Verde>>{
+        class "Profile.js" as Profile {
+            -applyUserStyle(color: string): void
+            -validatePublicGroups(): void
+            +Profile(): void
+        }
+        class "EditProfile.js" as EditProfile {
+            +EditProfile(): void
+        }
+
+        class "UserService.js" as UserService {
+            +getUserData(uid: uid): docSnap
+            +updateUserProfile(user: User): string
+        }
+
+        class "CreatePublicGroup.js" as CreatePublicGroup {
+            +CreatePublicGroup(): void
+        }
+
+        class "CreatePrivateGroup.js" as CreatePrivateGroup {
+            +CreatePrivateGroup(): void
+        }
+    }
+} 
+
+' IMPORTS '
+rectangle Imports {
+    entity "firebase/app" as firebase\app {
+        +initializeApp()
+    }
+
+    entity "firebase/auth" as firebase\auth {
+        +getAuth()
+        +createUserWithEmailAndPassword()
+        +signInWithEmailAndPassword()
+        +sendEmailVerification()
+        +sendPasswordResetEmail()
+        +updateProfile()
+        +signOut()
+    }
+
+    entity "firebase/firestore" as firebase\firestore {
+        +getFirestore()
+        +setDoc()
+        +doc()
+        +collection()
+        +query()
+        +where()
+        +getDocs()
+        +deleteDoc()
+        +updateDoc()
+        +orderBy()
+        +limit()
+    }
+
+    entity react {
+        +React()
+        +useState()
+        +useEffect()
+        +useRef()
+    }
+
+    entity "react-router-dom" as react\router\dom {
+        +useNavigate()
+        +BrowserRouter()
+        +Router()
+        +Route()
+        +Routes()
+    }
+}
+
+' RELACIONES '
+' Relaciones con modulos externos '
+
+firebase\app <-[#black]- Firebase
+firebase\auth <-[#red]- Firebase
+firebase\auth <-[#red]- Profile
+firebase\auth <-[#red]- UserService
+firebase\firestore <-[#blue]- CreatePrivateGroup
+firebase\firestore <-[#blue]- CreatePublicGroup
+firebase\firestore <-[#blue]- Firebase
+firebase\firestore <-[#blue]- Profile
+firebase\firestore <-[#blue]- UserService
+react <-[#green]- App
+react <-[#green]- CreatePrivateGroup
+react <-[#green]- CreatePublicGroup
+react <-[#green]- EditProfile
+react <-[#green]- Error404
+react <-[#green]- Profile
+react\router\dom <-[#pink]- App
+react\router\dom <-[#pink]- CreatePrivateGroup
+react\router\dom <-[#pink]- CreatePublicGroup
+react\router\dom <-[#pink]- EditProfile
+react\router\dom <-[#pink]- Profile
+
+' Relaciones con modulos internos '
+
+CreatePrivateGroup <-- App
+CreatePublicGroup <-- App
+EditProfile <-- App
+Error404 <-- App
+Firebase <-- CreatePrivateGroup
+Firebase <-- CreatePublicGroup
+Firebase <-- EditProfile
+Firebase <-- Profile
+Firebase <-- UserService
+Profile <-- App
+ShowAlert <-- CreatePrivateGroup
+ShowAlert <-- CreatePublicGroup
+ShowAlert <-- EditProfile
+ShowAlert <-- Profile
+style <-- CreatePrivateGroup
+style <-- CreatePublicGroup
+style <-- EditProfile
+style <-- Profile
+UserService <-- EditProfile
+
+skinparam folder<<Orange>> {
+    BackgroundColor orange
+}
+
+skinparam folder<<Azul>> {
+    BackgroundColor skyblue
+}
+
+skinparam folder<<Verde>> {
+    BackgroundColor lightgreen
+}
+
+@enduml

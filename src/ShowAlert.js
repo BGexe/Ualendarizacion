@@ -22,7 +22,6 @@ export const showError = (message) => {
         document.body.removeChild(overlay);
     });
 };
-
 // Función para mostrar un mensaje de éxito
 export const showSuccess = async (message) => {
     // Añade un fondo semi-transparente detrás del mensaje de alerta para enfatizar el foco en la ventana emergente.

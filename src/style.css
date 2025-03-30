@@ -13,11 +13,11 @@ body {
     height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la ventana */
 }
 
-.login-logo {
-    width: 160px; /* Cambia el tamaño según necesites */
+.icon {
+    width: 140px; /* Cambia el tamaño según necesites */
     height: auto;
-    margin-top: -50px;
-    margin-bottom: -20px;
+    margin-top: -35px;
+    margin-bottom: -5px;
 }
 
 .group {
@@ -27,15 +27,9 @@ body {
     margin-bottom: 0px;
 }
 
-.r-pw-logo {
-    width: 90px; /* Cambia el tamaño según necesites */
-    height: auto;
-    margin-top: -50px;
-    margin-bottom: 50px;
-}
-
 /* Contenedor principal para formularios */
 .container {
+    position: relative;
     width: 500px;
     min-height: 450px;
     background-color: white;
@@ -50,29 +44,10 @@ body {
     overflow: hidden;
 }
 
-/* Estilo de los formularios */
-.login-container, .register-container, .reset-password-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center; /* Distribuye los elementos de forma ordenada */
-    align-items: center;
-    height: auto;
-}
-
 /* Centrado del título */
 h2 {
     text-align: center;
     margin-bottom: 20px;
-}
-
-/* Asegúrate de que el contenedor tenga una posición relativa */
-.reset-password-container {
-    position: relative; /* Necesario para posicionar el botón X dentro de este contenedor */
-    max-width: 600px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Estilo para el botón X en la esquina superior derecha */
@@ -125,6 +100,7 @@ button.close-btn:hover::after {
 
 /* Estilos para los inputs y botones */
 input {
+    font-size: 14px;
     width: 80%;
     padding: 10px;
     margin: 10px 0;
@@ -140,6 +116,8 @@ input:focus{
 textarea {
     font-family: Arial, sans-serif;
     font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 15px;
     width: 80%;
     height: 70px;
     border-color: rgba(0, 0, 0, 0.2);
@@ -197,32 +175,6 @@ button:disabled {
 
 button.submit:hover{
     color: #54a3ff;
-}
-
-/* Estilo para el botón de registrarse */
-.reg-btn {
-    width: 80%;
-    padding: 10px;
-    background-color: #47d54b; /* Verde */
-    color: white;
-    border: 2px solid transparent; /* Borde transparente */
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-    box-sizing: border-box; /* Asegura que el borde no afecte el tamaño del botón */
-}
-
-/* Efecto hover para el botón de registrarse */
-.reg-btn:hover {
-    background-color: white; /* Fondo blanco al pasar el cursor */
-    color: #47d54b; /* Texto verde */
-    border-color: #47d54b; /* Borde verde */
-}
-
-/* Estilo para los botones deshabilitados */
-.reg-btn:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
 }
 
 /* Estilo de la ventana de error */
@@ -370,23 +322,103 @@ button.submit:hover{
 
 /* Contenedor principal del perfil */
 .profile-container {
-    height: 100vh; /* Altura completa de la ventana */
     display: flex;
     flex-direction: column;
+    height: 100vh; /* Para asegurar que no se scrollee toda la ventana */
+    overflow: hidden;
+}
+
+.group-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
 }
 
 /* Rectángulo azul en la parte superior */
 .header-rectangle {
-    background-color: transparent; /* Azul */
-    width: 100%; /* Ocupa todo el ancho */
-    height: 40vh; /* 30% de la altura de la ventana */
     position: fixed;
     top: 0;
     left: 0;
+    width: 100%;
+    height: 40vh;
     z-index: 10;
     display: flex;
-    justify-content: start; /* Alineado a la izquierda */
-    align-items: center; /* Centrado vertical */
+    justify-content: center;
+    align-items: center;
+}
+
+/* Estilo para el botón de cerrar sesión como ícono en un cuadrito en la esquina superior derecha */
+.exit-btn, .trash-btn{
+    position: absolute;
+    top: 10px;
+    right: 10px; /* Alineado a la esquina superior derecha */
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.share-btn {
+    position: absolute;
+    top: 200px;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+}
+
+.users-btn {
+    position: absolute;
+    top: 115px;
+    right: 10px;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: transparent;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+}
+
+/* Efecto hover para el botón de cerrar sesión */
+.exit-btn:hover, .trash-btn:hover, .share-btn:hover {
+    background-color: white; /* Fondo blanco */
+    border: none;
+}
+
+.group-header .exit-btn + .trash-btn {
+    top: 5px;
+    right: 10px;
+}
+
+.group-header .exit-btn {
+    top: 5px;
+    left: 10px;
 }
 
 /* Cuadrado gris en el lado izquierdo */
@@ -398,10 +430,55 @@ button.submit:hover{
     position: absolute;
     left: 20px;
     top: 50%;
+    cursor: pointer;
     transform: translateY(-50%);
-    display: flex;
+    display: inline-block;
     justify-content: center;
     align-items: center; /* Centra el nombre del usuario al pie del cuadrado */
+}
+
+.profile-picture-img {
+    width: 200px;
+    height: 200px;
+    border-radius: 5%;
+    object-fit: cover; /* Asegura que la imagen se ajuste bien al contenedor */
+    transition: 0.3s ease-in-out;
+}
+
+.profile-picture::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Oscurecer el fondo */
+    border-radius: 5%;
+    opacity: 0; /* Invisible por defecto */
+    transition: 0.3s ease-in-out; /* Transición suave */
+    z-index: 1; /* Aparece encima de la imagen */
+}
+
+.profile-picture:hover::after {
+    opacity: 1; /* Mostrar el fondo oscuro al pasar el cursor */
+}
+
+.edit-icon {
+    position: absolute;
+    bottom: 5px; /* Ajusta según el diseño */
+    right: 5px; /* Ajusta según el diseño */
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    padding: 5px;
+    font-size: 20px;
+    z-index: 2;
+    display: none; /* Oculto por defecto */
+    transition: 0.3s ease-in-out;
+}
+
+.profile-picture:hover .edit-icon {
+    display: block; /* Muestra el icono al pasar el cursor */
 }
 
 /* Nombre del usuario */
@@ -409,35 +486,10 @@ button.submit:hover{
     font-size: 24px; /* Ajusta el tamaño de la fuente */
     font-weight: bold; /* Texto en negrita */
     color: white; /* Color del texto */
-    position: absolute;
-    left: 110%;
-    top: 72%;
+    position: fixed;
+    left: 240px;
+    top: 26%;
     white-space: nowrap;
-}
-
-/* Estilo para el botón de cerrar sesión como ícono en un cuadrito en la esquina superior derecha */
-.signout-btn {
-    position: fixed; /* Fija la posición en relación a la ventana */
-    top: 10px; /* Distancia desde el borde superior */
-    right: 10px; /* Distancia desde el borde derecho */
-    width: 40px; /* Tamaño del cuadrado */
-    height: 40px; /* Tamaño del cuadrado */
-    background-color: transparent; /* Fondo azul */
-    color: white; /* Texto blanco */
-    border-radius: 8px; /* Bordes redondeados */
-    border: none;
-    font-size: 20px; /* Tamaño del ícono */
-    display: flex; /* Usamos flexbox para centrar el contenido */
-    justify-content: center; /* Centrado horizontal */
-    align-items: center; /* Centrado vertical */
-    cursor: pointer; /* Cursor de puntero al pasar el mouse */
-    z-index: 100; /* Asegura que el botón esté encima de otros elementos */;
-}
-
-/* Efecto hover para el botón de cerrar sesión */
-.signout-btn:hover {
-    background-color: white; /* Fondo blanco */
-    border: none;
 }
 
 /* Contenedor de botones dentro del header */
@@ -448,7 +500,7 @@ button.submit:hover{
     display: flex;
     z-index: 20;
     align-items: center;
-    justify-content: space-between; /* Espaciado uniforme entre los botones */
+    justify-content: center; /* Espaciado uniforme entre los botones */
 }
 
 /* Estilo de los botones */
@@ -460,7 +512,8 @@ button.submit:hover{
     border: none;
     border-radius: 0;
     cursor: pointer;
-    width: 33.33%; /* Cada botón ocupa el 30% del ancho */
+    flex: 1;
+    width: calc(100% / 3); /* Cada botón ocupa el 30% del ancho */
     text-align: center;
     display: flex;
     align-items: center;
@@ -476,30 +529,6 @@ button.submit:hover{
 .header-button:hover {
     background-color: white; /* Color al pasar el mouse */
     border: none;
-}
-
-.edit-profile-container {
-    position: relative;
-    max-width: 600px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.create-public-group-container {
-    position: relative;
-    max-width: 600px;
-    background-color: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .color-buttons {
@@ -526,3 +555,361 @@ button.submit:hover{
 .color-button.selected {
     border-color: #000; /* Borde negro para el color seleccionado */
 }
+
+.search-bar {
+    position: fixed;
+    z-index: 15;
+    width: 80%;
+    top: 40%;
+    left: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    gap: 8px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Cambio de color cuando el input está enfocado */
+.search-bar input:focus {
+    border-color:  #54a3ff;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.checkbox {
+    display: none; /* Ocultamos el checkbox real */
+}
+
+.checkbox-icon {
+    font-size: 24px;
+    width: 30px;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.checkbox:checked + .checkbox-icon {
+    background-color: #54a3ff; /* Cambiar color cuando esté marcado */
+    color: white;
+    border: #54a3ff;
+}
+
+.checkbox + .checkbox-icon {
+    color: #ccc;
+}
+
+.checkbox-text {
+    font-size: 15px;
+}
+
+.groups-container {
+    position: fixed;
+    width: 90%;
+    top: 50%;
+    left: 5%;
+    background-color: white;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: calc(100vh - 50%);
+    z-index: 5;
+}
+
+.groups-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.groups-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+.group-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45%, 1fr));
+    gap: 20px; /* Espaciado entre grupos */
+    margin: 0;
+}
+
+.group-card {
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    text-align: center;
+    padding: 20px;
+    aspect-ratio: 5 / 2.2; /* Relación de aspecto horizontal */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Asegura espacio uniforme entre elementos */
+    overflow: hidden; /* Asegura que nada desborde */
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.group-card:hover{
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.group-card p {
+    margin: 1px 0; /* Espaciado entre líneas */
+    text-align: left; /* Alinear el texto a la izquierda */
+    line-height: 1.5; /* Espaciado vertical entre líneas */
+    word-wrap: break-word; /* Ajusta el texto para evitar desbordamientos */
+}
+
+.group-card p.description {
+    display: -webkit-box;
+    -webkit-line-clamp: 4; /* Número de líneas visibles */
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Agrega puntos suspensivos */
+    white-space: normal;
+}
+
+.group-details {
+    position: absolute; /* Posición relativa al contenedor */
+    top: 50%; /* Alineado verticalmente con la imagen */
+    left: 240px; /* Espacio a la derecha de la imagen (200px + margen) */
+    transform: translateY(-50%); /* Ajuste para centrar verticalmente */
+    width: calc(100% - 260px); /* Ocupa el resto del ancho */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Alineación superior de los textos */
+    color: white;
+}
+
+.group-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 15px; /* Espacio entre el título y la descripción */
+}
+
+.group-professor,
+.group-description {
+    font-size: 16px;
+    margin-top: 5px; /* Espacio entre elementos */
+    max-width: 100%; /* Ajusta el ancho del texto */
+    word-wrap: break-word; /* Ajusta el texto si es demasiado largo */
+}
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.users-list-popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.users-list-container {
+    margin-top: 20px;
+}
+
+.user-container {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    color: white; /* Texto en blanco para mejor contraste */
+    display: flex; /* Agregado */
+    justify-content: space-between; /* Texto a la izquierda, botón a la derecha */
+    align-items: center; /* Alineación vertical */
+    position: relative; /* Para posicionar el botón */
+    white-space: nowrap;
+}
+
+.delete-btn {
+    flex-shrink: 0; /* Evita que el botón se reduzca */
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 10px; /* Espacio entre el texto y el botón */
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px; /* Ancho fijo (cuadrado) */
+    height: 32px; /* Alto fijo (cuadrado) */
+    margin-left: auto; /* Empuja el botón a la derecha */
+    border-radius: 4px; /* Bordes redondeados opcionales */
+}
+
+.delete-btn:hover {
+    color: #ff4444; /* Color rojo al hacer hover */
+}
+
+/* Contenedor de los días */
+.days-container {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 10%;
+    width: 80%;
+}
+
+/* Estilo base para los botones de los días */
+.day-btn {
+    flex: 1;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    background-color: #ffffff;
+    color: grey;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 0px;
+}
+
+/* Botón de día seleccionado */
+.day-btn.active {
+    background-color: #54a3ff;
+    color: #fff;
+}
+
+/* Botón de día con hora asignada */
+.day-btn.assigned {
+    background-color: #ddd;
+    color: #000;
+}
+
+/* Campo de entrada de hora */
+#time-L,
+#time-M,
+#time-X,
+#time-J,
+#time-V,
+#time-S,
+#time-D {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 14px;
+    width: 80%;
+}
+
+/* Estilo para los campos de fecha y hora */
+.custom-font {
+    font-family: Arial, sans-serif;
+}
+
+/* Contenedor principal del grid de eventos */
+.events-container {
+    position: fixed;
+    width: 90%;
+    top: 50%;
+    left: 5%;
+    background-color: white;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    height: calc(100vh - 50%);
+    z-index: 5;
+}
+
+.events-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.events-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+/* Grid de eventos */
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(45%, 1fr)); /* Máximo 2 columnas */
+    gap: 15px; /* Espaciado reducido entre eventos */
+    margin: 0;
+}
+
+/* Tarjetas de eventos */
+.event-card {
+    border-radius: 10px;
+    background-color: #eaeaea;
+    text-align: center;
+    padding: 15px; /* Reducimos el padding para optimizar el espacio */
+    aspect-ratio: 5 / 2.2; /* Relación de aspecto horizontal */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Asegura espacio uniforme entre elementos */
+    overflow: hidden; /* Asegura que nada desborde */
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos para el texto dentro de las tarjetas */
+.event-card h4 {
+    margin: 0; /* Sin margen adicional */
+    font-size: 18px;
+    color: #333;
+    text-align: left; /* Alinear el texto a la izquierda */
+}
+
+.event-card p {
+    margin: 9px 0; /* Reducimos el margen entre párrafos */
+    text-align: left; /* Alinear el texto a la izquierda */
+    line-height: 1.5; /* Reducimos el espaciado vertical entre líneas */
+    word-wrap: break-word; /* Ajusta el texto para evitar desbordamientos */
+    font-size: 14px;
+    color: #666;
+}
+
+.event-card p.description {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Reducimos a 3 líneas visibles para ahorrar espacio */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Agrega puntos suspensivos */
+    white-space: normal;
+    margin-top: 1px; /* Espaciado reducido antes de la descripción */
+}
+
+/* Colores específicos para eventos cíclicos y únicos */
+.event-card.cyclic {
+    border-left: 10px solid #54a3ff; /* Color para eventos semanales */
+}
+
+.event-card.unique {
+    border-left: 10px solid #ff5733; /* Color para eventos únicos */
+}
+

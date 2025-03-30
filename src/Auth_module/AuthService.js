@@ -1,7 +1,7 @@
 // AuthService.js nos ayuda a gestionar los servicios de autenticación
 import {auth, db} from '../Firebase';
 import {createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, updateProfile} from "firebase/auth";
-import {setDoc, doc, collection, query, where, getDocs} from "firebase/firestore";
+import {setDoc, doc, collection, query, where, getDocs, getDoc} from "firebase/firestore";
 import {showSuccess} from '../ShowAlert';
 // Función para verificar si el nombre de usuario ya existe
 export const checkUsernameExists = async(username) => {
@@ -18,7 +18,7 @@ export const checkEmailExists = async(email) => {
     return !querySnapshot.empty; // Retorna `true` si el correo ya existe en la base de datos.
 };
 // Función de registro
-export const register = async(username, nombre, apellido, email, password) => {
+export const register = async(username, nombre, apellido, email, password, profileBase64) => {
     try{
         // Crea un nuevo usuario en Firebase Authentication con correo y contraseña.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -29,20 +29,22 @@ export const register = async(username, nombre, apellido, email, password) => {
         const user = userCredential.user; // Obtiene los datos del usuario autenticado.
         // Envía un correo electrónico de verificación al usuario.
         await sendEmailVerification(user);
-         // Muestra un mensaje de éxito indicando que se envió el correo de verificación.
-        await showSuccess("Se ha enviado un correo de verificación. Por favor, verifica tu correo antes de iniciar sesión.");
+        // Muestra un mensaje de éxito indicando que se envió el correo de verificación.
         // Almacena la información del usuario en la base de datos Firestore bajo la colección 'users'.
         await setDoc(doc(db, "users", user.uid), {
-            username,
-            nombre,
-            apellido,
-            email,
-            password,
-            createdAt: new Date(), // Fecha de creación del registro.
+             username,
+             nombre,
+             apellido,
+             email,
+             password,
+             photoBase64: profileBase64, // Foto predeterminada
+             headerColor: "#54a3ff", // Color de encabezado predeterminado
+             createdAt: new Date(), // Fecha de creación del registro.
         });
+        await showSuccess("Se ha enviado un correo de verificación. Por favor, verifica tu correo antes de iniciar sesión.");
     }
     catch(error){
-        throw new Error(error.message); // Lanza un error si algo falla.
+        throw new Error("Falló el registro. Inténtelo de nuevo."); // Lanza un error si algo falla.
     }
 };
 // Función de inicio de sesión
@@ -70,7 +72,20 @@ export const login = async(usernameOrEmail, password) => {
         if(!user.emailVerified){
             throw new Error("Por favor, verifica tu correo electrónico antes de iniciar sesión.");
         }
-        return user; // Retorna los datos del usuario.
+        // Recupera los datos completos del usuario de Firestore
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if(userSnap.exists()){
+            const userData = userSnap.data();
+            // Crear un nuevo campo uid en userData
+            userData["uid"] = user.uid;
+            // Puedes almacenar todos estos datos en `localStorage`
+            localStorage.setItem('user', JSON.stringify(userData));
+            return userData; // Devuelve todos los datos del usuario
+        }
+        else{
+            throw new Error("No se encontraron datos para este usuario.");
+        }
     }
     catch(error){
         throw new Error(error.message); // Lanza un error si algo falla.
@@ -78,11 +93,6 @@ export const login = async(usernameOrEmail, password) => {
 };
 // Función para enviar un correo de recuperación de contraseña
 export const resetPassword = async(email) => {
-    try{
-        // Envía un correo electrónico para restablecer la contraseña al correo proporcionado.
-        await sendPasswordResetEmail(auth, email);
-    }
-    catch(error){
-        throw new Error(error.message); // Lanza un error si algo falla.
-    }
+    // Envía un correo electrónico para restablecer la contraseña al correo proporcionado.
+    await sendPasswordResetEmail(auth, email);
 };

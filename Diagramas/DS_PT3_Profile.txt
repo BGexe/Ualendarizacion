@@ -1,0 +1,93 @@
+title 3.- Secuencias desde IU #3 Profile
+
+actor User
+participant "Profile.js" as Profile
+participant "UserService.js" as UserService
+participant "firebase/auth" as FirebaseAuth
+participant "firebase/firestore" as Firestore
+participant "react-router-dom" as Router
+participant "App.js" as App
+participant "EditProfile.js" as EditProfile
+participant "ShowAlert.js" as ShowAlert
+
+alt El usuario abre su perfil
+    User -> Profile: Carga la página de perfil
+    Profile -> localStorage: Obtiene datos del usuario
+    alt Si hay datos en localStorage
+        localStorage --> Profile: Retorna datos del usuario
+        Profile -> User: Muestra interfaz 3 con los datos del usuario
+    else Si no hay datos en localStorage
+        Profile -> UserService: await getUserData(user.uid)
+        UserService -> Firestore: await getDoc(doc(db, "users", uid))
+        alt Si los datos del usuario existen
+            Firestore --> UserService: Retorna datos del usuario
+            UserService --> Profile: Retorna datos del usuario
+            Profile -> localStorage: Guarda datos del usuario
+            Profile -> User: Muestra interfaz 3 con los datos del usuario
+        else Si no existen datos del usuario
+            Firestore --> UserService: throw error(\n "No se encontraron datos para este usuario."\n)
+            UserService --> Profile: throw error
+            Profile -> Router: navigate("/")
+        end
+    end
+end
+
+alt El usuario edita su perfil
+    User -> Profile: Hace click en 'Editar perfil'
+    Profile -> Router: navigate('/EditProfile')
+    Router -> App: Pasa ruta '/EditProfile'
+    App -> EditProfile: Invoca element={\n <EditProfile />\n}
+    EditProfile -> User: Muestra interfaz 4
+    == Ir a Secuencias desde IU #4 EditProfile ==
+end
+
+alt El usuario actualiza su foto de perfil
+    User -> Profile: Hace click en 'Actualizar foto de perfil'
+    Profile -> User: Abre el explorador de archivos
+    User -> Profile: Selecciona un archivo
+    Profile -> Profile: Verifica formato y tamaño de la imagen
+    alt Si la imagen no es válida
+        Profile -> ShowAlert: await showError(\n "Solo se permiten archivos JPG, JPEG y PNG."\n)
+        ShowAlert -> User: Muestra interfaz de error
+        User -> ShowAlert: Hace click en botón 'Ok'
+        ShowAlert -> User: Muestra interfaz 3
+    else Si la imagen es válida
+        Profile -> Profile: Convierte imagen a Base64
+        Profile -> UserService: await updateUserProfile(user.uid, null, null, photoBase64)
+        UserService -> Firestore: await updateDoc(doc(db, "users", uid), {photoBase64})
+        alt Si la actualización es exitosa
+            Firestore --> UserService: Return exito
+            UserService --> Profile: Return "Foto de perfil actualizada con éxito."
+            Profile -> ShowAlert: await showSuccess(\n "Foto de perfil actualizada con éxito."\n)
+            ShowAlert -> User: Muestra interfaz de éxito
+            User -> ShowAlert: Hace click en botón 'Ok'
+            ShowAlert -> User: Muestra interfaz 3 con nueva foto
+        else Si ocurre un error
+            Firestore --> UserService: throw error(\n "Error al actualizar la foto de perfil."\n)
+            UserService --> Profile: throw error
+            Profile -> ShowAlert: await showError(\n error.message\n)
+            ShowAlert -> User: Muestra interfaz de error
+            User -> ShowAlert: Hace click en botón 'Ok'
+            ShowAlert -> User: Muestra interfaz 3
+        end
+    end
+end
+
+alt El usuario busca grupos públicos
+    User -> Profile: Ingresa término de búsqueda
+    Profile -> Firestore: await getDocs(query(GrupoPublico, where("nombre_uea", ">= ", searchTerm)))
+    Firestore --> Profile: Retorna lista de grupos
+    Profile -> User: Muestra resultados de búsqueda
+end
+
+alt El usuario cierra sesión
+    User -> Profile: Hace click en 'Cerrar sesión'
+    Profile -> localStorage: Elimina objeto 'user'
+    Profile -> FirebaseAuth: await signOut(auth)
+    FirebaseAuth --> Profile: Retorna éxito
+    Profile -> Router: navigate('/')
+    Router -> App: Pasa ruta '/'
+    App -> Login: Invoca element={\n <Login />\n}
+    Login -> User: Muestra interfaz 1
+    == Ir a Secuencias desde IU #1 Login ==
+end

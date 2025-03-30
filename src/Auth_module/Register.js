@@ -6,6 +6,7 @@ import {showError} from '../ShowAlert';
 import '../style.css';
 // Componente funcional para gestionar el formulario de registro.
 const Register = () => {
+    const [isHovered, setIsHovered] = useState(false);
     // Estados locales para manejar los datos ingresados por el usuario.
     const[username, setUsername] = useState('');
     const[nombre, setNombre] = useState('');
@@ -56,8 +57,7 @@ const Register = () => {
             return;
         }
         try{
-            // Llama a la función `register` para registrar al usuario.
-            await register(username, nombre, apellido, email, password);
+            await register(username, nombre, apellido, email, password); // Pasa la foto como argumento
             navigate('/'); // Redirige al usuario a la página de inicio de sesión tras registrarse exitosamente.
         }
         catch(error){
@@ -123,7 +123,15 @@ const Register = () => {
                     </span>
                 </div>
                 {/* Botón para enviar el formulario y registrar al usuario. */}
-                <button type="submit" className="reg-btn">Registrarse</button>
+                <button type="submit" style={{
+                    backgroundColor: isHovered ? 'white' : "#47d54b",
+                    color: isHovered ? '#47d54b' : "white",
+                    borderColor: isHovered ? '#47d54b' : "white"
+                }}
+                onMouseEnter={() => setIsHovered(true)} // Activa hover
+                onMouseLeave={() => setIsHovered(false)}>
+                    Registrarse
+                </button>
                 </form>
                 {/* Enlace para redirigir al formulario de inicio de sesión si ya tiene cuenta. */}
                 <p>

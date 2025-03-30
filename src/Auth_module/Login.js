@@ -2,7 +2,7 @@
 import React, {useState, useEffect} from 'react';
 import {useNavigate} from 'react-router-dom';
 import {login} from './AuthService';
-import { showError } from '../ShowAlert';
+import {showError} from '../ShowAlert';
 import '../style.css';
 // Componente funcional para gestionar el inicio de sesión.
 const Login = () => {
@@ -26,7 +26,8 @@ const Login = () => {
         e.preventDefault(); // Evita el comportamiento predeterminado del formulario (recargar la página).
         try{
             // Intenta autenticar al usuario con los datos proporcionados.
-            await login(usernameOrEmail, password);
+            const userData = await login(usernameOrEmail, password);
+            localStorage.setItem('user', JSON.stringify(userData));
             navigate('/Profile'); // Si la autenticación es exitosa, redirige al perfil del usuario.
         }
         catch(error){
@@ -36,9 +37,9 @@ const Login = () => {
     };
     return(
         // Contenedor principal del formulario de inicio de sesión.
-        <div className='login-container container'>
+        <div className='container container'>
             {/* Muestra el icono del perfil. */}
-            <img src="/images/profile.png" alt="Logo" className="login-logo"/>
+            <img src="/images/profile.png" alt="Logo" className="icon"/>
             {/* Formulario para ingresar datos de inicio de sesión. */}
             <form onSubmit={handleSubmit} class="input-wrapper">
                 {/* Campo para ingresar el nombre de usuario o correo electrónico. */}

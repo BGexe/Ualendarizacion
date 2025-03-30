@@ -1,0 +1,176 @@
+direction: down
+app_js: "app_js\n(40 lines)" { style: { stroke-width: 1 }
+ shape: "rectangle" }
+auth_module_authservice_js: "auth_module_authservice_js\n(98 lines)" { style: { stroke-width: 2 }
+ shape: "rectangle" }
+auth_module_login_js: "auth_module_login_js\n(85 lines)" { style: { stroke-width: 2 }
+ shape: "rectangle" }
+auth_module_register_js: "auth_module_register_js\n(147 lines)" { style: { stroke-width: 3 }
+ shape: "rectangle" }
+auth_module_resetpassword_js: "auth_module_resetpassword_js\n(64 lines)" { style: { stroke-width: 2 }
+ shape: "rectangle" }
+error404_js: "error404_js\n(13 lines)" { style: { stroke-width: 1 }
+ shape: "rectangle" }
+firebase_js: "firebase_js\n(20 lines)" { style: { stroke-width: 1 }
+ shape: "rectangle" }
+group_module_createuniqueevent_js: "group_module_createuniqueevent_js\n(103 lines)" { style: { stroke-width: 3 }
+ shape: "rectangle" }
+group_module_createweeklyevent_js: "group_module_createweeklyevent_js\n(175 lines)" { style: { stroke-width: 4 }
+ shape: "rectangle" }
+group_module_editgroup_js: "group_module_editgroup_js\n(123 lines)" { style: { stroke-width: 3 }
+ shape: "rectangle" }
+group_module_group_js: "group_module_group_js\n(315 lines)" { style: { stroke-width: 6 }
+ shape: "rectangle" }
+group_module_groupservice_js: "group_module_groupservice_js\n(43 lines)" { style: { stroke-width: 2 }
+ shape: "rectangle" }
+profile_module_createprivategroup_js: "profile_module_createprivategroup_js\n(114 lines)" { style: { stroke-width: 3 }
+ shape: "rectangle" }
+profile_module_createpublicgroup_js: "profile_module_createpublicgroup_js\n(215 lines)" { style: { stroke-width: 4 }
+ shape: "rectangle" }
+profile_module_editprofile_js: "profile_module_editprofile_js\n(114 lines)" { style: { stroke-width: 3 }
+ shape: "rectangle" }
+profile_module_profile_js: "profile_module_profile_js\n(330 lines)" { style: { stroke-width: 6 }
+ shape: "rectangle" }
+profile_module_userservice_js: "profile_module_userservice_js\n(32 lines)" { style: { stroke-width: 1 }
+ shape: "rectangle" }
+showalert_js: "showalert_js\n(47 lines)" { style: { stroke-width: 2 }
+ shape: "rectangle" }
+index_js: "index_js\n(15 lines)" { style: { stroke-width: 1 }
+ shape: "rectangle" }
+style_css: "style_css\n(843 lines)" { style: { stroke-width: 15 }
+ shape: "rectangle" }
+react: "react" { style: { stroke-width: 1 }
+ shape: "hexagon" }
+react-router-dom: "react-router-dom" { style: { stroke-width: 1 }
+ shape: "oval" }
+firebase_auth: "firebase_auth" { style: { stroke-width: 1 }
+ shape: "oval" }
+firebase_firestore: "firebase_firestore" { style: { stroke-width: 1 }
+ shape: "oval" }
+firebase_app: "firebase_app" { style: { stroke-width: 1 }
+ shape: "oval" }
+browser-image-compression: "browser-image-compression" { style: { stroke-width: 1 }
+ shape: "oval" }
+react-dom_client: "react-dom_client" { style: { stroke-width: 1 }
+ shape: "oval" }
+app_js -> react:  "React" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+app_js -> react-router-dom:  "Router,\nRoute,\nRoutes" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+app_js -> auth_module_register_js:  "Register" { style: { stroke: "#808080" } }
+app_js -> auth_module_login_js:  "Login" { style: { stroke: "#808080" } }
+app_js -> auth_module_resetpassword_js:  "ResetPassword" { style: { stroke: "#808080" } }
+app_js -> profile_module_profile_js:  "Profile" { style: { stroke: "#808080" } }
+app_js -> profile_module_editprofile_js:  "EditProfile" { style: { stroke: "#808080" } }
+app_js -> profile_module_createpublicgroup_js:  "CreatePublicGroup" { style: { stroke: "#808080" } }
+app_js -> profile_module_createprivategroup_js:  "CreatePrivateGroup" { style: { stroke: "#808080" } }
+app_js -> group_module_group_js:  "Group" { style: { stroke: "#808080" } }
+app_js -> group_module_editgroup_js:  "EditGroup" { style: { stroke: "#808080" } }
+app_js -> group_module_createweeklyevent_js:  "CreateWeeklyEvent" { style: { stroke: "#808080" } }
+app_js -> group_module_createuniqueevent_js:  "CreateUniqueEvent" { style: { stroke: "#808080" } }
+app_js -> error404_js:  "Error404" { style: { stroke: "#808080" } }
+auth_module_authservice_js -> firebase_js:  "auth,\ndb" { style: { stroke: "#808080" } }
+auth_module_authservice_js -> firebase_auth:  "createUserWithEmailAndPassword,\nsignInWithEmailAndPassword,\nsendEmailVerification,\nsendPasswordResetEmail,\nupdateProfile" { style: { stroke: "#808080" } }
+auth_module_authservice_js -> firebase_firestore:  "setDoc,\ndoc,\ncollection,\nquery,\nwhere,\ngetDocs,\ngetDoc" { style: { stroke: "#808080" } }
+auth_module_authservice_js -> showalert_js:  "showSuccess" { style: { stroke: "#808080" } }
+auth_module_login_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+auth_module_login_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+auth_module_login_js -> auth_module_authservice_js:  "login" { style: { stroke: "#808080" } }
+auth_module_login_js -> showalert_js:  "showError" { style: { stroke: "#808080" } }
+auth_module_login_js -> style_css: { style: { stroke: "#808080" } }
+auth_module_register_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+auth_module_register_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+auth_module_register_js -> auth_module_authservice_js:  "register,\ncheckUsernameExists" { style: { stroke: "#808080" } }
+auth_module_register_js -> showalert_js:  "showError" { style: { stroke: "#808080" } }
+auth_module_register_js -> style_css: { style: { stroke: "#808080" } }
+auth_module_resetpassword_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+auth_module_resetpassword_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+auth_module_resetpassword_js -> auth_module_authservice_js:  "resetPassword,\ncheckEmailExists" { style: { stroke: "#808080" } }
+auth_module_resetpassword_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+auth_module_resetpassword_js -> style_css: { style: { stroke: "#808080" } }
+error404_js -> react:  "React" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+firebase_js -> firebase_app:  "initializeApp" { style: { stroke: "#808080" } }
+firebase_js -> firebase_auth:  "getAuth" { style: { stroke: "#808080" } }
+firebase_js -> firebase_firestore:  "getFirestore" { style: { stroke: "#808080" } }
+group_module_createuniqueevent_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+group_module_createuniqueevent_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+group_module_createuniqueevent_js -> firebase_js:  "db" { style: { stroke: "#808080" } }
+group_module_createuniqueevent_js -> firebase_firestore:  "collection,\naddDoc" { style: { stroke: "#808080" } }
+group_module_createuniqueevent_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+group_module_createuniqueevent_js -> style_css: { style: { stroke: "#808080" } }
+group_module_createweeklyevent_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+group_module_createweeklyevent_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+group_module_createweeklyevent_js -> firebase_js:  "db" { style: { stroke: "#808080" } }
+group_module_createweeklyevent_js -> firebase_firestore:  "addDoc,\ncollection" { style: { stroke: "#808080" } }
+group_module_createweeklyevent_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+group_module_createweeklyevent_js -> style_css: { style: { stroke: "#808080" } }
+group_module_editgroup_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+group_module_editgroup_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+group_module_editgroup_js -> group_module_groupservice_js:  "updateGroupDetails" { style: { stroke: "#808080" } }
+group_module_editgroup_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+group_module_editgroup_js -> style_css: { style: { stroke: "#808080" } }
+group_module_group_js -> react:  "React,\nuseEffect,\nuseState,\nuseCallback" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+group_module_group_js -> react-router-dom:  "useParams,\nuseNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+group_module_group_js -> firebase_firestore:  "doc,\ngetDoc,\nupdateDoc" { style: { stroke: "#808080" } }
+group_module_group_js -> firebase_js:  "db" { style: { stroke: "#808080" } }
+group_module_group_js -> profile_module_userservice_js:  "getUserData" { style: { stroke: "#808080" } }
+group_module_group_js -> showalert_js:  "showSuccess" { style: { stroke: "#808080" } }
+group_module_group_js -> style_css: { style: { stroke: "#808080" } }
+group_module_groupservice_js -> firebase_firestore:  "doc,\nupdateDoc,\ngetDoc" { style: { stroke: "#808080" } }
+group_module_groupservice_js -> firebase_js:  "db" { style: { stroke: "#808080" } }
+profile_module_createprivategroup_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+profile_module_createprivategroup_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+profile_module_createprivategroup_js -> firebase_js:  "db,\nauth" { style: { stroke: "#808080" } }
+profile_module_createprivategroup_js -> firebase_firestore:  "doc,\nsetDoc,\nupdateDoc,\narrayUnion" { style: { stroke: "#808080" } }
+profile_module_createprivategroup_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+profile_module_createprivategroup_js -> style_css: { style: { stroke: "#808080" } }
+profile_module_createpublicgroup_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+profile_module_createpublicgroup_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+profile_module_createpublicgroup_js -> firebase_js:  "db,\nauth" { style: { stroke: "#808080" } }
+profile_module_createpublicgroup_js -> firebase_firestore:  "doc,\nsetDoc,\nquery,\nwhere,\ncollection,\ngetDocs,\ngetDoc,\norderBy,\nlimit" { style: { stroke: "#808080" } }
+profile_module_createpublicgroup_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+profile_module_createpublicgroup_js -> style_css: { style: { stroke: "#808080" } }
+profile_module_editprofile_js -> react:  "React,\nuseState,\nuseEffect" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+profile_module_editprofile_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+profile_module_editprofile_js -> profile_module_userservice_js:  "updateUserProfile,\ngetUserData" { style: { stroke: "#808080" } }
+profile_module_editprofile_js -> firebase_js:  "auth" { style: { stroke: "#808080" } }
+profile_module_editprofile_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+profile_module_editprofile_js -> style_css: { style: { stroke: "#808080" } }
+profile_module_profile_js -> react:  "React,\nuseState,\nuseEffect,\nuseRef,\nuseCallback" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+profile_module_profile_js -> react-router-dom:  "useNavigate" { style: { stroke: "#CA4245"
+    stroke-dash: 5 } }
+profile_module_profile_js -> firebase_js:  "auth,\ndb" { style: { stroke: "#808080" } }
+profile_module_profile_js -> firebase_firestore:  "collection,\nquery,\nwhere,\ngetDocs,\ngetDoc,\ndeleteDoc,\ndoc,\nlimit,\nupdateDoc" { style: { stroke: "#808080" } }
+profile_module_profile_js -> firebase_auth:  "signOut" { style: { stroke: "#808080" } }
+profile_module_profile_js -> browser-image-compression:  "imageCompression" { style: { stroke: "#808080" } }
+profile_module_profile_js -> profile_module_userservice_js:  "updateUserProfile,\ngetUserData" { style: { stroke: "#808080" } }
+profile_module_profile_js -> showalert_js:  "showError,\nshowSuccess" { style: { stroke: "#808080" } }
+profile_module_profile_js -> style_css: { style: { stroke: "#808080" } }
+profile_module_userservice_js -> firebase_firestore:  "doc,\nupdateDoc,\ngetDoc" { style: { stroke: "#808080" } }
+profile_module_userservice_js -> firebase_js:  "db" { style: { stroke: "#808080" } }
+index_js -> react:  "React" { style: { stroke: "#61DAFB"
+    stroke-dash: 5 } }
+index_js -> react-dom_client:  "ReactDOM" { style: { stroke: "#808080" } }
+index_js -> app_js:  "App" { style: { stroke: "#808080" } }

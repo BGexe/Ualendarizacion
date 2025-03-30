@@ -1,0 +1,75 @@
+title 1.- Secuencias desde IU #1 Login
+
+actor User
+participant "Login.js" as Login
+participant "AuthService.js" as AuthService
+participant "firebase/auth" as FirebaseAuth
+participant "firebase/firestore" as Firestore
+participant "react-router-dom" as Router
+participant "App.js" as App
+participant "Profile.js" as Profile
+participant "ShowAlert.js" as ShowAlert
+
+Router -> App:Pasa ruta '/'
+App->Login:<Login />
+Login-->App:jsx
+App->User:Muestra interfaz 1
+
+alt El usuario hace click en 'Iniciar sesión'
+    User -> Login:Hace click en botón 'Iniciar sesión'
+    Login -> AuthService:await login( \n  usernameOrEmail,\n  password\n)
+    opt Si el usuario ingresó una cadena de caracteres sin @
+        AuthService -> Firestore:query(\n collection(db, "users"),\n where("username", "==", usernameOrEmail)\n)
+        alt Si el username no existe
+            Firestore --> AuthService:throw error(\n "El nombre de usuario y/o contraseña no son correctos."\n)
+            AuthService --> Login:throw error(\n  "El nombre de usuario y/o contraseña no son correctos."\n)
+            Login -> ShowAlert:await showError(\n error.message\n)
+            ShowAlert -> User:Muestra interfaz 12
+            User -> ShowAlert:Hace click en botón 'Ok'
+            ShowAlert->User:Desaparece popup
+            ShowAlert-->Login:Return
+== ir a Secuiencias desde IU #1 Login ==
+        else Si el username existe
+            Firestore --> AuthService:querySnapshot.docs[0].data().email
+        end
+    end
+            AuthService -> FirebaseAuth:await signInWithEmailAndPassword(\n auth, email, password\n)
+
+    alt Si las credenciales son incorrectas
+        FirebaseAuth --> AuthService:throw error(\n "Usuario o contraseña incorrectos"\n)
+        AuthService --> Login:throw error(\n "Usuario o contraseña incorrectos"\n)
+        Login -> ShowAlert:await showError(\n error.message\n)
+        ShowAlert -> User:Muestra interfaz 12
+        User -> ShowAlert:Hace click en botón 'Ok'
+ShowAlert->User:Desaparece popup
+ShowAlert-->Login:Return
+== ir a Secuiencias desde IU #1 Login ==
+
+    else Si las credenciales son correctas
+        FirebaseAuth --> AuthService:{user, credential, operationType}
+        alt Si el correo no está verificado
+            AuthService --> Login:throw error(\n "Por favor, verifica tu correo electrónico antes de iniciar sesión."\n)
+            Login -> ShowAlert:await showError(\n error.message\n)
+            ShowAlert -> User:Muestra interfaz 12
+            User -> ShowAlert:Hace click en botón 'Ok'
+ShowAlert->User:Desaparece popup
+ShowAlert-->Login:Return
+== ir a Secuencias desde IU #1 Login ==
+        else Si el correo está verificado
+            AuthService --> Login:Return{\n success: true,\n user\n}
+            Login -> Router:navigate('/')
+            
+            == ir a Secuencias desde IU #3 Profile ==
+        end
+    end
+
+else El usuario hace click en '¿Olvidé mi contraseña?'
+    User -> Login:Hace click en enlace '¿Olvidé mi contraseña?'
+    Login -> Router:navigate('/')
+== Ir a Secuencias desde IU #2 Recuperar contraseña ==
+
+else El usuario hace click en 'Registrarse'
+    User -> Login:Hace click en enlace 'Registrarse'
+    Login -> Router:navigate('/')
+    == Ir a Secuencias desde IU #0 Register ==
+end

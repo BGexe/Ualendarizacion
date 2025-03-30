@@ -1,0 +1,105 @@
+@startuml
+skinparam linetype ortho
+skinparam nodesep 50
+skinparam ranksep 100
+
+' CÓDIGOS '
+
+folder src <<Orange>> {
+    class "Firebase.js" as Firebase {
+        -app(initializeApp: firebaseConfig)
+        +db(getFirestore: app)
+    }
+
+    class "ShowAlert.js" as ShowAlert {
+        +showError(message: string): void
+        +showSuccess(message: string): void
+    }
+
+    class "style.css" as style {
+    }
+
+    folder GroupModule <<Gray>> {
+        class "CreateUniqueEvent.js" as CreateUniqueEvent {
+            +CreateUniqueEvent(): void
+        }
+
+        class "CreateWeeklyEvent.js" as CreateWeeklyEvent {
+            +CreateWeeklyEvent(): void
+        }
+
+        class "EditGroup.js" as EditGroup {
+            -updateHeaderColor(color: string): void
+            -handleUpdate(): void
+            +EditGroup(): void
+        }
+
+        class "Group.js" as Group {
+            -applyGroupStyle(color: string): void
+            -fetchGroupData(): void
+            -checkUserInGroup(): void
+            -handleFollowGroup(): void
+            -handleRemoveFromGroup(): void
+            -handleBack(): void
+            +Group(): void
+        }
+
+        class "GroupService.js" as GroupService {
+            +updateGroupDetails(groupId: string, details: object): void
+            +getGroupData(groupId: string): object
+        }
+    }
+}
+
+' IMPORTS '
+rectangle Imports {
+    entity "firebase/firestore" as firebase\firestore {
+        +doc()
+        +getDoc()
+        +updateDoc()
+    }
+
+    entity react {
+        +React()
+        +useState()
+        +useEffect()
+    }
+
+    entity "react-router-dom" as react\router\dom {
+        +useNavigate()
+        +useParams()
+    }
+}
+
+' RELACIONES '
+' Relaciones con módulos externos '
+
+firebase\firestore <-[#blue]- Group
+firebase\firestore <-[#blue]- GroupService
+react <-[#green]- CreateUniqueEvent
+react <-[#green]- CreateWeeklyEvent
+react <-[#green]- EditGroup
+react <-[#green]- Group
+react\router\dom <-[#pink]- EditGroup
+react\router\dom <-[#pink]- Group
+
+' Relaciones con módulos internos '
+
+Firebase <-[#blue]- GroupService
+ShowAlert <-[#purple]- EditGroup
+style <-[#purple]- EditGroup
+style <-[#purple]- Group
+GroupService <-- EditGroup
+GroupService <-- Group
+EditGroup <-- Group
+
+' Estilos para folders y clases '
+skinparam folder<<Orange>> {
+    BackgroundColor orange
+}
+
+skinparam folder<<Gray>> {
+    BackgroundColor gray
+}
+
+@enduml

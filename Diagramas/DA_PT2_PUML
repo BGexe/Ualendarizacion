@@ -1,0 +1,29 @@
+@startuml
+
+actor "Usuario" as usr
+
+node "Computadora usuario" as userpc {
+    component "Login" as log
+    component "Register" as reg
+    component "ResetPassword" as rpw
+    component "Profile" as prof
+}
+
+node "Correo usuario" as email {
+}
+
+node "Servidor Firebase" as sfb {
+    component "firebase/auth" as auth
+}
+
+cloud "Firestore" as fs {
+    component "Usuario" as user
+}
+
+usr --> userpc
+log --> auth
+reg --> auth
+auth --> prof: login exitoso
+rpw --> email
+auth <--> user
+@enduml

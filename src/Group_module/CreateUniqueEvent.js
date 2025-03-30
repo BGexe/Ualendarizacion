@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../Firebase";
-import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+//import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { showError, showSuccess } from "../ShowAlert";
 import "../style.css";
-import { initializeGoogleApi, signInToGoogle, createEventInGoogleCalendar, sendEmail } from "./googleCalendarService";
+//import { initializeGoogleApi, signInToGoogle, createEventInGoogleCalendar, sendEmail } from "./googleCalendarService";
+import { initializeGoogleApi, sendEmail } from "./googleCalendarService";
 
 const CreateUniqueEvent = () => {
     const [eventName, setEventName] = useState("");

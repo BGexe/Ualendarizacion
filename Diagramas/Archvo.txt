@@ -1,220 +1,496 @@
-//CreateUniqueEvent.js
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { db } from "../Firebase";
-import { collection, addDoc } from "firebase/firestore";
-import { showError, showSuccess } from "../ShowAlert";
-import "../style.css";
-//import { initializeGoogleApi, signInToGoogle, getGoogleToken, createEventInGoogleCalendar } from "./googleCalendarService"; // ✅ Importar la nueva función
-import { initializeGoogleApi, createEventInGoogleCalendar } from "./googleCalendarService"; // ✅ Importar la nueva función
-
-const CreateUniqueEvent = () => {
-    const [eventName, setEventName] = useState("");
-    const [description, setDescription] = useState("");
-    const [eventDate, setEventDate] = useState("");
-    const [eventTime, setEventTime] = useState("");
-    const navigate = useNavigate();
-    //const [userEmail, setUserEmail] = useState("");
-
-    useEffect(() => {
-        const storedGroup = JSON.parse(localStorage.getItem("selectedGroup"));
-        if (storedGroup) {
-            document.body.style.background = `linear-gradient(to bottom, ${storedGroup.headerColor || "#54a3ff"} 40%, #ffffff 40%)`;
-        }
-        document.body.style.overflow = "hidden";
-        return () => {
-            document.body.style.overflow = "auto";
-        };
-    }, []);
-
-    useEffect(() => {
-        const loadGoogleApi = async () => {
-            try {
-                await initializeGoogleApi();
-                console.log("Google API inicializada correctamente.");
-            } catch (error) {
-                console.error("Error al cargar Google API:", error);
-            }
-        };
-        loadGoogleApi();
-    }, []);
-
-    const handleCreateEvent = async () => {
-        const selectedGroup = JSON.parse(localStorage.getItem("selectedGroup"));
-        if (!selectedGroup || !selectedGroup.id) {
-            showError("No se ha seleccionado un grupo.");
-            return;
-        }
-    
-        if (!eventName || !description || !eventDate || !eventTime) {
-            showError("Por favor, complete todos los campos.");
-            return;
-        }
-    
-        try {
-            //let token = getGoogleToken(); // Obtiene el token almacenado
-    /*
-            if (!token) {
-                token = await signInToGoogle(); // Solo pide login si no hay token
-            }
-    */
-            const eventRef = await addDoc(collection(db, "Evento"), {
-                id_grupo: selectedGroup.id,
-                nombre_evento: eventName,
-                descripcion: description,
-                es_ciclico: false,
-                dia_evento: eventDate,
-                hora_evento: eventTime,
-                //usuario: email,
-            });
-    
-            console.log("Evento creado en Firestore:", eventRef.id);
-    
-            const eventDetails = {
-                summary: eventName,
-                description: description,
-                start: {
-                    dateTime: `${eventDate}T${eventTime}:00`,
-                    timeZone: "America/Mexico_City",
-                },
-                end: {
-                    dateTime: `${eventDate}T${eventTime}:00`,
-                    timeZone: "America/Mexico_City",
-                },
-            };
-    
-            await createEventInGoogleCalendar(eventDetails);
-    
-            console.log("Evento creado en Google Calendar.");
-            showSuccess("Evento creado en Firestore y Google Calendar.");
-    
-            setEventName("");
-            setDescription("");
-            setEventDate("");
-            setEventTime("");
-            navigate(`/Group/${selectedGroup.id}`);
-            
-        } catch (error) {
-            console.error("Error al crear el evento:", error);
-            showError(`Error: ${error.message || "Hubo un error inesperado."}`);
-        }
-    };
-
-    return (
-        <div className="container">
-            <button
-                className="close-btn"
-                onClick={() => {
-                    const storedGroup = JSON.parse(localStorage.getItem("selectedGroup"));
-                    navigate(`/Group/${storedGroup.id}`);
-                }}
-            >
-                X
-            </button>
-            <img src="/images/event.png" alt="Logo" className="icon" />
-            <div className="input-wrapper">
-                <input
-                    type="text"
-                    placeholder="Nombre del evento"
-                    value={eventName}
-                    onChange={(e) => setEventName(e.target.value)}
-                />
-                <input
-                    type="date"
-                    placeholder="Fecha"
-                    value={eventDate}
-                    onChange={(e) => setEventDate(e.target.value)}
-                    className="custom-font"
-                />
-                <input
-                    type="time"
-                    placeholder="Hora"
-                    value={eventTime}
-                    onChange={(e) => setEventTime(e.target.value)}
-                />
-                <textarea
-                    placeholder="Descripción"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                />
-                <button className="submit-btn" onClick={handleCreateEvent}>
-                    Crear Evento
-                </button>
-            </div>
-        </div>
-    );
-};
-
-export default CreateUniqueEvent;
-
-//googleCalendarService.js
-import { gapi } from "gapi-script";
-
-export const initializeGoogleApi = async () => {
-    return new Promise((resolve, reject) => {
-        gapi.load("client:auth2", async () => {
-            try {
-                await gapi.client.init({
-                    clientId: "183817969866-t7v99abmqbi7pf9n28ak7201sii2jme6.apps.googleusercontent.com",
-                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
-                    scope: "https://www.googleapis.com/auth/calendar.events",
-                });
-
-                const authInstance = gapi.auth2.getAuthInstance();
-                
-                // 🔹 Cerrar sesión antes de autenticar al nuevo usuario
-                if (authInstance.isSignedIn.get()) {
-                    await authInstance.signOut();
-                }
-
-                resolve(authInstance);
-            } catch (error) {
-                console.error("Error al inicializar Google API:", error);
-                reject(error);
-            }
-        });
-    });
-};
-
-export const signInToGoogle = async () => {
-    try {
-        const authInstance = gapi.auth2.getAuthInstance();
-        await authInstance.signIn();
-        return authInstance.currentUser.get().getBasicProfile().getEmail(); // 🔹 Devuelve el correo del usuario autenticado
-    } catch (error) {
-        console.error("Error al iniciar sesión en Google:", error);
-        throw error;
-    }
-};
-
-export const createEventInGoogleCalendar = async (eventDetails) => {
-    try {
-        const token = localStorage.getItem("googleAccessToken");
-    if (!token) {
-        throw new Error("No hay un token de acceso. El usuario debe iniciar sesión.");
-    }
-
-        const response = await fetch(
-            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(eventDetails),
-            }
-        );
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-            throw new Error(responseData.error?.message || "Error desconocido en Google Calendar.");
-        }
-
-        return responseData;
-    } catch (error) {
-        console.error("Error al crear evento en Google Calendar:", error);
-        throw error;
-    }
-};
+ Compiling...
+[1] Failed to compile.
+[1] 
+[1] Module not found: Error: Can't resolve 'path' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/dotenv/lib'
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "path": require.resolve("path-browserify") }'
+[1]     - install 'path-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "path": false }
+[1] ERROR in ./node_modules/dotenv/lib/main.js 2:13-28
+[1] Module not found: Error: Can't resolve 'path' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/dotenv/lib'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "path": require.resolve("path-browserify") }'
+[1]     - install 'path-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "path": false }
+[1] 
+[1] ERROR in ./node_modules/dotenv/lib/main.js 3:11-24
+[1] Module not found: Error: Can't resolve 'os' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/dotenv/lib'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "os": require.resolve("os-browserify/browser") }'
+[1]     - install 'os-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "os": false }
+[1] 
+[1] ERROR in ./node_modules/dotenv/lib/main.js 4:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/dotenv/lib'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/base64/index.js 3:18-45
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/base64'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/index.js 8:20-49
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/index.js 9:11-24
+[1] Module not found: Error: Can't resolve 'fs' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/index.js 10:13-28
+[1] Module not found: Error: Can't resolve 'path' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "path": require.resolve("path-browserify") }'
+[1]     - install 'path-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "path": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/index.js 11:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/message-parser.js 3:18-45
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/relaxed-body.js 4:18-45
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/relaxed-body.js 5:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/dkim/sign.js 5:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/dkim'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/cookies.js 4:15-29
+[1] Module not found: Error: Can't resolve 'url' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "url": require.resolve("url/") }'
+[1]     - install 'url'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "url": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/index.js 3:13-28
+[1] Module not found: Error: Can't resolve 'http' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "http": require.resolve("stream-http") }'
+[1]     - install 'stream-http'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "http": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/index.js 4:14-30
+[1] Module not found: Error: Can't resolve 'https' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "https": require.resolve("https-browserify") }'
+[1]     - install 'https-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "https": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/index.js 5:15-29
+[1] Module not found: Error: Can't resolve 'url' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "url": require.resolve("url/") }'
+[1]     - install 'url'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "url": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/index.js 6:13-28
+[1] Module not found: Error: Can't resolve 'zlib' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "zlib": require.resolve("browserify-zlib") }'
+[1]     - install 'browserify-zlib'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "zlib": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/index.js 7:20-49
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/fetch/index.js 10:12-26
+[1] Module not found: Error: Can't resolve 'net' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/fetch'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mailer/index.js 9:13-28
+[1] Module not found: Error: Can't resolve 'util' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mailer'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "util": require.resolve("util/") }'
+[1]     - install 'util'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "util": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mailer/index.js 10:15-29
+[1] Module not found: Error: Can't resolve 'url' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mailer'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "url": require.resolve("url/") }'
+[1]     - install 'url'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "url": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mailer/index.js 13:12-26
+[1] Module not found: Error: Can't resolve 'net' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mailer'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mailer/index.js 14:12-26
+[1] Module not found: Error: Can't resolve 'dns' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mailer'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mailer/index.js 15:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mailer'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-funcs/mime-types.js 5:13-28
+[1] Module not found: Error: Can't resolve 'path' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-funcs'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "path": require.resolve("path-browserify") }'
+[1]     - install 'path-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "path": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-node/index.js 5:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-node'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-node/index.js 6:11-24
+[1] Module not found: Error: Can't resolve 'fs' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-node'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-node/index.js 8:20-49
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-node'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-node/last-newline.js 3:18-45
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-node'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-node/le-unix.js 3:15-32
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-node'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/mime-node/le-windows.js 3:15-32
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/mime-node'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/qp/index.js 3:18-45
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/qp'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/sendmail-transport/index.js 3:14-44
+[1] Module not found: Error: Can't resolve 'child_process' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/sendmail-transport'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/shared/index.js 5:15-29
+[1] Module not found: Error: Can't resolve 'url' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/shared'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "url": require.resolve("url/") }'
+[1]     - install 'url'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "url": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/shared/index.js 6:13-28
+[1] Module not found: Error: Can't resolve 'util' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/shared'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "util": require.resolve("util/") }'
+[1]     - install 'util'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "util": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/shared/index.js 7:11-24
+[1] Module not found: Error: Can't resolve 'fs' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/shared'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/shared/index.js 9:12-26
+[1] Module not found: Error: Can't resolve 'dns' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/shared'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/shared/index.js 10:12-26
+[1] Module not found: Error: Can't resolve 'net' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/shared'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/shared/index.js 11:11-24
+[1] Module not found: Error: Can't resolve 'os' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/shared'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "os": require.resolve("os-browserify/browser") }'
+[1]     - install 'os-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "os": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/data-stream.js 3:15-32
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/http-proxy-client.js 6:12-26
+[1] Module not found: Error: Can't resolve 'net' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/http-proxy-client.js 7:12-26
+[1] Module not found: Error: Can't resolve 'tls' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/http-proxy-client.js 8:15-29
+[1] Module not found: Error: Can't resolve 'url' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "url": require.resolve("url/") }'
+[1]     - install 'url'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "url": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/index.js 5:12-26
+[1] Module not found: Error: Can't resolve 'net' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/index.js 6:12-26
+[1] Module not found: Error: Can't resolve 'tls' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/index.js 7:11-24
+[1] Module not found: Error: Can't resolve 'os' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "os": require.resolve("os-browserify/browser") }'
+[1]     - install 'os-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "os": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/index.js 8:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/smtp-connection/index.js 10:20-49
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/smtp-connection'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/xoauth2/index.js 3:15-39
+[1] Module not found: Error: Can't resolve 'stream' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/xoauth2'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "stream": require.resolve("stream-browserify") }'
+[1]     - install 'stream-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "stream": false }
+[1] 
+[1] ERROR in ./node_modules/nodemailer/lib/xoauth2/index.js 5:15-32
+[1] Module not found: Error: Can't resolve 'crypto' in '/Users/gastritis/Documents/Code/ualendarizacion/node_modules/nodemailer/lib/xoauth2'
+[1] 
+[1] BREAKING CHANGE: webpack < 5 used to include polyfills for node.js core modules by default.
+[1] This is no longer the case. Verify if you need this module and configure a polyfill for it.
+[1] 
+[1] If you want to include a polyfill, you need to:
+[1]     - add a fallback 'resolve.fallback: { "crypto": require.resolve("crypto-browserify") }'
+[1]     - install 'crypto-browserify'
+[1] If you don't want to include a polyfill, you can use an empty module like this:
+[1]     resolve.fallback: { "crypto": false }
+[1] 
+[1] webpack compiled with 50 errors

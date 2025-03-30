@@ -1,10 +1,4 @@
 import { gapi } from "gapi-script";
-import { db } from "../Firebase";
-//import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
-import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
-import { app } from "../Firebase"; // Asegúrate de importar tu configuración de Firebase
-
-const firestore = getFirestore(app); // Inicializar Firestore
 
 export const initializeGoogleApi = async () => {
     return new Promise((resolve, reject) => {
@@ -77,54 +71,106 @@ export const createEventInGoogleCalendar = async (eventDetails) => {
     }
 };
 
-//export const sendEventInvitationEmails = async (groupId, eventId, eventDetails) => {
+export async function sendEmail(toEmail, subject, message) {
+    try {
+        const response = await fetch("http://127.0.0.1:5002/send-email", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                to_email: toEmail,   // Debe coincidir con la clave en Flask
+                subject: subject,
+                message: message
+            })
+        });
 
-    export const sendEventInvitationEmails = async (eventId, groupId, eventDetails) => {
-        try {
-            if (!eventDetails.userIds || eventDetails.userIds.length === 0) {
-                console.error("❌ Error: La lista de usuarios está vacía.");
-                return;
-            }
-    
-            // Obtener correos de usuarios desde Firestore
-            const usersQuery = query(
-                collection(firestore, "users"),
-                where("uid", "in", eventDetails.userIds)
-            );
-    
-            const usersSnapshot = await getDocs(usersQuery);
-            
-            if (usersSnapshot.empty) {
-                console.error("❌ No se encontraron usuarios con los IDs proporcionados.");
-                return;
-            }
-    
-            const emails = usersSnapshot.docs.map(doc => doc.data().email);
-            console.log("📩 Correos a enviar:", emails);
-    
-            const response = await fetch("https://ualendarizacion-production.up.railway.app/", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    emails,
-                    eventName: eventDetails.summary,
-                    eventDate: eventDetails.start.dateTime.split("T")[0],
-                    eventTime: eventDetails.start.dateTime.split("T")[1],
-                    eventDescription: eventDetails.description,
-                }),
-                mode: 'no-cors',
-            });
-    
-            if (!response.ok) {
-                // Si la respuesta no es 200, lanzamos un error
-                const errorText = await response.text();
-                throw new Error(`Error al enviar el correo: ${response.status} - ${errorText}`);
-            }
-
-            const data = await response.json();
-            console.log("✅ Correos enviados:", data);
-    
-        } catch (error) {
-            console.error("❌ Error al enviar correos:", error);
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error(data.error || "Error desconocido");
         }
+        console.log("Correo enviado con éxito:", data);
+    } catch (error) {
+        console.error("Error en la petición:", error);
+    }
+}
+
+/*
+const nodemailer = require('nodemailer');
+require('dotenv').config();
+
+// Configurar el transportador de Nodemailer con tus credenciales de Gmail
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        //user: process.env.EMAIL_USER,  // Tu correo
+        user: 'ualendarizacion@gmail.com',  // Tu correo
+        //pass: process.env.EMAIL_PASS   // Tu contraseña o contraseña de aplicación de Google
+        pass: '20Ualendarizacion25'   // Tu contraseña o contraseña de aplicación de Google
+    }
+});
+
+export const sendEventInvitationEmails = async (eventId, groupId, eventDetails) => {
+    try {
+        // Obtener el grupo de Firestore
+        const groupRef = doc(db, "GrupoPublico", groupId);
+        let groupSnap = await getDoc(groupRef);
+
+        if (!groupSnap.exists()) {
+            // Si no está en GrupoPublico, buscar en GrupoPrivado
+            const privateGroupRef = doc(db, "GrupoPrivado", groupId);
+            groupSnap = await getDoc(privateGroupRef);
+            if (!groupSnap.exists()) {
+                throw new Error("No se encontró el grupo.");
+            }
+        }
+
+        const groupData = groupSnap.data();
+        const userUids = groupData.Usuarios || [];
+
+        if (userUids.length === 0) {
+            console.log("No hay usuarios en el grupo.");
+            return;
+        }
+
+        // Obtener correos electrónicos de los usuarios en la colección users
+        const usersQuery = query(collection(db, "users"), where("__name__", "in", userUids));
+        const usersSnap = await getDocs(usersQuery);
+        const emails = usersSnap.docs.map(doc => doc.data().email).filter(email => email);
+
+        if (emails.length === 0) {
+            console.log("No se encontraron correos de los usuarios.");
+            return;
+        }
+
+        // Construir el enlace para agregar el evento a Google Calendar
+        const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.summary)}&details=${encodeURIComponent(eventDetails.description)}&dates=${eventDetails.start.dateTime.replace(/[-:]/g, "").slice(0, -1)}/${eventDetails.end.dateTime.replace(/[-:]/g, "").slice(0, -1)}`;
+
+        // Enviar correos con el enlace
+        for (const email of emails) {
+            await sendEmail(email, googleCalendarLink, eventDetails);
+        }
+
+        console.log("Correos enviados exitosamente.");
+    } catch (error) {
+        console.error("Error al enviar invitaciones por correo:", error);
+    }
+};
+
+// Función para enviar correo usando Nodemailer
+const sendEmail = async (recipientEmail, eventLink, eventDetails) => {
+    const mailOptions = {
+        from: 'ualendarizacion@gmail.com', // Tu correo
+        to: recipientEmail,           // Correo del destinatario
+        subject: `Invitación al evento: ${eventDetails.summary}`,
+        text: `Hola,\n\nTe invitamos al siguiente evento:\n\n${eventDetails.summary}\n\nDetalles:\n${eventDetails.description}\n\nAgrega el evento a tu Google Calendar: ${eventLink}\n\nSaludos!`
     };
+
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Correo enviado a ${recipientEmail}: ${info.response}`);
+    } catch (error) {
+        console.error(`Error al enviar correo a ${recipientEmail}:`, error);
+    }
+};
+*/

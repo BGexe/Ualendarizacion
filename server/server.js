@@ -23,14 +23,6 @@ const oauth2Client = new google.auth.OAuth2(
   'http://localhost:3000/auth/google/callback' // URL de redirección después de autenticación
 );
 
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
-
 // Redirige a Google para que el usuario se autentique
 app.get('/auth/google', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
@@ -83,36 +75,3 @@ app.get('/api/calendar/events', async (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-
-app.post("/send-email", async (req, res) => {
-    const { emails, eventName, eventDate, eventTime, eventDescription } = req.body;
-
-    if (!emails || emails.length === 0) {
-        return res.status(400).json({ error: "No hay correos disponibles" });
-    }
-
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: emails.join(","),
-        subject: `Invitación al evento: ${eventName}`,
-        html: `
-            <p>Has sido invitado al evento <b>${eventName}</b></p>
-            <p><b>Fecha:</b> ${eventDate}</p>
-            <p><b>Hora:</b> ${eventTime}</p>
-            <p><b>Descripción:</b> ${eventDescription}</p>
-            <p><a href="https://calendar.google.com/calendar/r/eventedit?text=${encodeURIComponent(eventName)}
-                    &dates=${eventDate}T${eventTime}/${eventDate}T${eventTime}
-                    &details=${encodeURIComponent(eventDescription)}">Añadir a Google Calendar</a></p>
-        `,
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        res.status(200).json({ success: true, message: "Correos enviados correctamente" });
-    } catch (error) {
-        console.error("Error enviando correos:", error);
-        res.status(500).json({ error: "Error al enviar correos" });
-    }
-});
-
-app.listen(port, () => console.log(`Servidor corriendo en el puerto ${port}`));

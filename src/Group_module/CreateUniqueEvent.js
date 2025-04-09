@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../Firebase";
-//import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { showError, showSuccess } from "../ShowAlert";
 import "../style.css";
-//import { initializeGoogleApi, signInToGoogle, createEventInGoogleCalendar, sendEmail } from "./googleCalendarService";
-import { initializeGoogleApi, sendEmail } from "./googleCalendarService";
+import { sendEmail } from "./googleCalendarService";
 
 const CreateUniqueEvent = () => {
     const [eventName, setEventName] = useState("");
@@ -14,7 +12,6 @@ const CreateUniqueEvent = () => {
     const [eventDate, setEventDate] = useState("");
     const [eventTime, setEventTime] = useState("");
     const navigate = useNavigate();
-    //const [userEmail, setUserEmail] = useState("");
 
     useEffect(() => {
         const storedGroup = JSON.parse(localStorage.getItem("selectedGroup"));
@@ -25,18 +22,6 @@ const CreateUniqueEvent = () => {
         return () => {
             document.body.style.overflow = "auto";
         };
-    }, []);
-
-    useEffect(() => {
-        const loadGoogleApi = async () => {
-            try {
-                await initializeGoogleApi();
-                console.log("Google API inicializada correctamente.");
-            } catch (error) {
-                console.error("Error al cargar Google API:", error);
-            }
-        };
-        loadGoogleApi();
     }, []);
 
     const handleCreateEvent = async () => {
@@ -52,23 +37,15 @@ const CreateUniqueEvent = () => {
         }
 
         try {
-            /*
-            const email = await signInToGoogle();
-            setUserEmail(email);
-            console.log("Usuario autenticado:", userEmail);
-            */
-/*
-            const eventRef = await addDoc(collection(db, "Evento"), {
+            await addDoc(collection(db, "Evento"), {
                 id_grupo: selectedGroup.id,
                 nombre_evento: eventName,
                 descripcion: description,
                 es_ciclico: false,
                 dia_evento: eventDate,
                 hora_evento: eventTime,
-                usuario: email,
             });
-            //console.log("Evento creado en Firestore:", eventRef.id);
-*/
+
             const dateTimeStart = `${eventDate}T${eventTime}:00`;
             const dateTimeEnd = `${eventDate}T${eventTime}:00`;
 
@@ -90,22 +67,23 @@ const CreateUniqueEvent = () => {
                 throw new Error("No hay usuarios en este grupo.");
             }
 
-            console.log("UIDs de usuarios en el grupo:", userIds);
+            //console.log("UIDs de usuarios en el grupo:", userIds);
 
             const usersQuery = query(collection(db, "users"), where("uid", "in", userIds));
             const usersSnapshot = await getDocs(usersQuery);
             const emails = usersSnapshot.docs.map(doc => doc.data().email);
 
-            console.log("Correos electrónicos encontrados:", emails);
+            //console.log("Correos electrónicos encontrados:", emails);
             const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.summary)}&details=${encodeURIComponent(eventDetails.description)}&dates=${eventDetails.start.dateTime.replace(/[-:]/g, "").slice(0, -1)}/${eventDetails.end.dateTime.replace(/[-:]/g, "").slice(0, -1)}`;
-            // 🔹 Enviar correos a los usuarios
             for (const userEmail of emails) {
-                await sendEmail(userEmail, `Nuevo Evento: ${eventName}`, `Link del evento: ${googleCalendarLink}`);
+                await sendEmail(
+                    userEmail,
+                    `Nuevo Evento: ${eventName}`,
+                    `🗓 Se ha creado un evento\n\n📌 Haz click para agregarlo a tu calendario: ${googleCalendarLink}`
+                );
             }
 
-            //await createEventInGoogleCalendar(eventDetails);
-            console.log("Evento creado en Google Calendar.");
-            showSuccess("Evento creado en Firestore y Google Calendar.");
+            showSuccess("Evento creado en Firestore. Se ha enviado un correo para agregar el evento a tu Google Calendar");
             setEventName("");
             setDescription("");
             setEventDate("");
@@ -149,6 +127,7 @@ const CreateUniqueEvent = () => {
                     placeholder="Hora"
                     value={eventTime}
                     onChange={(e) => setEventTime(e.target.value)}
+                    className="custom-font"
                 />
                 <textarea
                     placeholder="Descripción"

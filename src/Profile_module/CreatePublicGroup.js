@@ -1,7 +1,7 @@
 // CreatePublicGroup.js ayuda a la creación de grupos publicos
 import React, {useState, useEffect} from "react";
 import {useNavigate} from "react-router-dom";
-import {db, auth} from "../Firebase"; // Asegúrate de que este sea tu archivo Firebase
+import {db, auth} from "../Firebase";
 import {doc, setDoc, query, where, collection, getDocs, getDoc, orderBy, limit} from "firebase/firestore";
 import {showError, showSuccess} from "../ShowAlert";
 import "../style.css";
@@ -30,11 +30,9 @@ const CreatePublicGroup = () => {
 		{value: "#3288bd", label: "Azul"},
 		{value: "#5e4fa2", label: "Morado"},
 	];
-	// Cargar datos de trimestre y profesores
 	useEffect(() => {
 		const fetchData = async () => {
 			try{
-				// Obtener el trimestre con el campo createdAt más reciente
 				const trimestreQuery = query(
 					collection(db, "Trimestre"),
 					orderBy("createdAt", "desc"),
@@ -43,9 +41,8 @@ const CreatePublicGroup = () => {
 				const trimestreSnapshot = await getDocs(trimestreQuery);
 				if(!trimestreSnapshot.empty){
 					const trimestreDoc = trimestreSnapshot.docs[0];
-					setIdTrimestre(trimestreDoc.data().id_trimestre); // Asigna el id_trimestre más reciente
+					setIdTrimestre(trimestreDoc.data().id_trimestre);
 				}
-				// Obtener lista de profesores desde la colección 'users'
 				const professorsQuery = query(collection(db, "users"), where("profesor", "==", true));
 				const querySnapshot = await getDocs(professorsQuery);
 				const professors = querySnapshot.docs.map((doc) => ({
@@ -70,7 +67,7 @@ const CreatePublicGroup = () => {
 			document.body.style.overflow = "auto";
 		};
 	}, []);
-	// Manejar la creación del grupo
+
 	const handleCreateGroup = async () => {
 		if(!profesor || !nombreUea || !grupoUea || !claveUea || !descripcion){
 			showError("Por favor, completa todos los campos obligatorios.");
@@ -171,7 +168,7 @@ const CreatePublicGroup = () => {
 				<option value="" disabled>Selecciona un profesor</option>
 				{professoresList.map((profesor) => (
 					<option key={profesor.id} value={profesor.id}>
-						{profesor.nombre} {profesor.apellido} {/* Mostrar nombre y apellido del profesor */}
+						{profesor.nombre} {profesor.apellido}
 					</option>
 				))}
 				</select>
@@ -193,7 +190,6 @@ const CreatePublicGroup = () => {
 					value={claveUea}
 					onChange={(e) => {
 						const newValue = e.target.value;
-						// Permitir solo números (eliminar cualquier carácter no numérico)
 						if(/^\d*$/.test(newValue)){
 							setClaveUea(newValue);
 						}

@@ -37,17 +37,15 @@ const CreateWeeklyEvent = () => {
         };
     }, []);
 
-    // Función para manejar la selección/deselección de días
     const toggleDay = (day) => {
         setActiveDay((prevActiveDay) => {
             if(prevActiveDay === day){
-                return null; // Desactivar el día si ya está activo
+                return null;
             }
-            return day; // Activar el día seleccionado
+            return day;
         });
     };
 
-    // Función para actualizar la hora de un día específico
     const handleTimeChange = (day, time) => {
         setSelectedDays((prev) => ({
             ...prev,
@@ -57,15 +55,14 @@ const CreateWeeklyEvent = () => {
     
     const getButtonClass = (day) => {
         if(activeDay === day){
-            return "day-btn active"; // Azul si está seleccionado
+            return "day-btn active";
         }
         if(selectedDays[day]?.hora){
-            return "day-btn assigned"; // Gris si tiene una hora asignada pero no está seleccionado
+            return "day-btn assigned";
         }
-        return "day-btn"; // Blanco por defecto
+        return "day-btn";
     };
 
-    // Función para guardar el evento en Firestore
     const handleSaveEvent = async () => {
         const storedGroup = JSON.parse(localStorage.getItem("selectedGroup"));
         if (!storedGroup || !storedGroup.id) {
@@ -91,7 +88,6 @@ const CreateWeeklyEvent = () => {
         }
     
         try {
-          // 🔹 Obtener trimestre
           const trimestreSnapshot = await getDocs(collection(db, "Trimestre"));
           if (trimestreSnapshot.empty) throw new Error("No se encontró el trimestre.");
     
@@ -99,7 +95,6 @@ const CreateWeeklyEvent = () => {
           const fechaInicio = trimestreData.inicio_trimestre.toDate();
           const fechaFin = trimestreData.fin_trimestre.toDate();
     
-          // 🔹 Obtener usuarios
           const groupId = storedGroup.id;
           const userUids = storedGroup.Usuarios;
           if (!userUids.length) throw new Error("No se encontraron usuarios en el grupo.");
@@ -108,7 +103,6 @@ const CreateWeeklyEvent = () => {
           const usersSnapshot = await getDocs(usersQuery);
           const emails = usersSnapshot.docs.map(doc => doc.data().email);
     
-          // 🔹 Guardar evento en Firestore
           const eventRef = await addDoc(collection(db, "Evento"), {
             id_grupo: groupId,
             nombre_evento: eventName,
@@ -120,13 +114,12 @@ const CreateWeeklyEvent = () => {
             fin_trimestre: fechaFin,
           });
     
-          // 🔹 Enviar link a cada usuario
-          const link = `https://ualendarizacion-production.up.railway.app/autorizar-evento/${eventRef.id}`;
+          const link = `https://ualendarizacion-production.up.railway.app/Event-authorization/${eventRef.id}`;
           for (const userEmail of emails) {
             await sendEmail(
               userEmail,
               `Evento Semanal: ${eventName}`,
-              `Se ha creado un evento recurrente.\nHaz clic para agregarlo a tu calendario:\n${link}`
+              `🗓 Se ha creado un evento recurrente.\n\n📌 Haz clic para agregarlo a tu calendario:\n${link}`
             );
           }
     

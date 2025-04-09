@@ -50,7 +50,7 @@ const EventAuthorization = () => {
         ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].includes(d)
       );
 
-      const hora = eventData[dias[0]]; // Asumimos que todos tienen misma hora
+      const hora = eventData[dias[0]];
 
       await createWeeklyRecurringEvent(
         eventData.nombre_evento,
@@ -76,14 +76,16 @@ const EventAuthorization = () => {
 
   return (
     <div className="container">
-      <h2>Autorizar Evento</h2>
-      <p><strong>Nombre:</strong> {eventData.nombre_evento}</p>
-      <p><strong>Descripción:</strong> {eventData.descripcion}</p>
-      <p><strong>Aula:</strong> {eventData.aula || "No especificado"}</p>
-      <p><strong>Días:</strong> {Object.keys(eventData).filter(d => ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].includes(d)).join(", ")}</p>
-      <button onClick={handleAuthorize} disabled={authenticating}>
-        {authenticating ? "Autenticando..." : "Agregar a Google Calendar"}
-      </button>
+        <div className="auth">
+            <h2>Autorizar Evento</h2>
+            <p><strong>Nombre:</strong> {eventData.nombre_evento}</p>
+            <p><strong>Descripción:</strong> {eventData.descripcion}</p>
+            <p><strong>Aula:</strong> {eventData.aula || "No especificado"}</p>
+            <p><strong>Días:</strong> {Object.keys(eventData).filter(d => ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].includes(d)).join(", ")}</p>
+            <button onClick={handleAuthorize} disabled={authenticating}>
+                {authenticating ? "Autenticando..." : "Agregar a Google Calendar"}
+            </button>
+        </div>
     </div>
   );
 };

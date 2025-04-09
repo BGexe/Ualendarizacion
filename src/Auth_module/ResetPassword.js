@@ -46,7 +46,7 @@ const ResetPassword = () => {
             {/* Botón para cerrar o salir del formulario, redirigiendo a la página de inicio de sesión. */}
             <button onClick={() => navigate('/')} className="close-btn">X</button>
             {/* Formulario de restablecimiento de contraseña. */}
-            <form onSubmit={handleReset} class="input-wrapper">
+            <form onSubmit={handleReset} className="input-wrapper">
                 {/* Campo para ingresar el correo electrónico. */}
                 <input
                     type="email"

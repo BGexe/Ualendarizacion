@@ -37,11 +37,11 @@ const Login = () => {
     };
     return(
         // Contenedor principal del formulario de inicio de sesión.
-        <div className='container container'>
+        <div className="container container">
             {/* Muestra el icono del perfil. */}
             <img src="/images/profile.png" alt="Logo" className="icon"/>
             {/* Formulario para ingresar datos de inicio de sesión. */}
-            <form onSubmit={handleSubmit} class="input-wrapper">
+            <form onSubmit={handleSubmit} className="input-wrapper">
                 {/* Campo para ingresar el nombre de usuario o correo electrónico. */}
                 <input
                     type="text"
@@ -63,20 +63,16 @@ const Login = () => {
                     </span>
                 </div>
                 {/* Botón para enviar el formulario y autenticar al usuario. */}
-                <button type="submit" className='submit'>Iniciar Sesión</button>
+                <button type="submit" className="submit">Iniciar Sesión</button>
             </form>
             {/* Enlace para redirigir al formulario de recuperación de contraseña. */}
             <p>
-                <center>
-                    <span className="button-link" onClick={() => navigate('/ResetPassword')}>¿Olvidé mi contraseña?</span>
-                </center>
+                <span className="button-link" onClick={() => navigate('/ResetPassword')}>¿Olvidé mi contraseña?</span>
             </p>
             {/* Enlace para redirigir al formulario de registro si el usuario no tiene cuenta. */}
             <p>
-                <center>
-                    ¿Aún no tienes una cuenta?{' '}
-                    <span className="button-link" onClick={() => navigate('/Register')}>Registrarse</span>
-                </center>
+                ¿Aún no tienes una cuenta?{' '}
+                <span className="button-link" onClick={() => navigate('/Register')}>Registrarse</span>
             </p>
         </div>
     );

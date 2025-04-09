@@ -23,7 +23,7 @@ const Group = () => {
     const [showUsersList, setShowUsersList] = useState(false);
     const [events, setEvents] = useState([]);
     const [profilePicture, setProfilePicture] = useState(null);
-    const DEFAULT_GROUP_PICTURE = "/images/group.png"; // Imagen predeterminada para grupos
+    const DEFAULT_GROUP_PICTURE = "/images/group.png";
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
     const userId = JSON.parse(localStorage.getItem("user"))?.uid;
@@ -42,11 +42,9 @@ const Group = () => {
         }
     }, [headerColor]);
 
-    // Función para cargar los datos del grupo
     useEffect(() => {
             const fetchGroupData = async () => {
                 try {
-                    // Buscar el grupo (público o privado)
                     let groupRef = doc(db, "GrupoPublico", id);
                     let groupSnap = await getDoc(groupRef);
     

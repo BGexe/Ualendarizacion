@@ -16,14 +16,12 @@ app.use(session({
   saveUninitialized: true
 }));
 
-// Configura el cliente OAuth2 de Google
 const oauth2Client = new google.auth.OAuth2(
-  '183817969866-t7v99abmqbi7pf9n28ak7201sii2jme6.apps.googleusercontent.com', // Reemplaza con tu Client ID
-  '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', // Reemplaza con tu Client Secret
-  'http://localhost:3000/auth/google/callback' // URL de redirección después de autenticación
+  '183817969866-t7v99abmqbi7pf9n28ak7201sii2jme6.apps.googleusercontent.com',
+  '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',
+  'http://localhost:3000/auth/google/callback'
 );
 
-// Redirige a Google para que el usuario se autentique
 app.get('/auth/google', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
@@ -32,21 +30,17 @@ app.get('/auth/google', (req, res) => {
   res.redirect(authUrl);
 });
 
-// Ruta de callback para manejar la respuesta de Google
 app.get('/auth/google/callback', async (req, res) => {
   const { code } = req.query;
 
-  // Intercambia el código de autorización por un token de acceso
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
 
-  // Almacena el token en la sesión
   req.session.tokens = tokens;
 
   res.send('Autenticación exitosa. Ahora puedes acceder a tu calendario.');
 });
 
-// Ruta para obtener eventos del calendario
 app.get('/api/calendar/events', async (req, res) => {
   if (!req.session.tokens) {
     return res.status(401).send('No estás autenticado.');
@@ -70,8 +64,8 @@ app.get('/api/calendar/events', async (req, res) => {
     res.status(500).send('Error al obtener eventos');
   }
 });
-
-// Inicia el servidor
+/*
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+*/

@@ -62,7 +62,7 @@ const EditGroup = () => {
         }
     
         try{
-            console.log("Actualizando con datos:", storedGroup.id, updatedDetails);
+            //console.log("Actualizando con datos:", storedGroup.id, updatedDetails);
             await updateGroupDetails(storedGroup.id, updatedDetails);
             showSuccess("Se guardaron los cambios al grupo.");
             const updatedGroup = { ...storedGroup, ...updatedDetails };

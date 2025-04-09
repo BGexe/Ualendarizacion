@@ -1,13 +1,11 @@
 import {doc, updateDoc, getDoc} from "firebase/firestore";
-import {db} from "../Firebase"; // Importa db correctamente
+import {db} from "../Firebase";
 
 export const getGroupData = async (groupId) => {
     try{
-        // Primero busca en GrupoPublico
         let groupRef = doc(db, "GrupoPublico", groupId);
         let docSnap = await getDoc(groupRef);
         if(!docSnap.exists()){
-            // Si no existe en GrupoPublico, busca en GrupoPrivado
             groupRef = doc(db, "GrupoPrivado", groupId);
             docSnap = await getDoc(groupRef);
             if(!docSnap.exists()){
@@ -24,17 +22,15 @@ export const getGroupData = async (groupId) => {
 
 export const updateGroupDetails = async (groupId, details) => {
     try{
-        // Buscar el grupo para saber en qué colección está
         const groupData = await getGroupData(groupId);
-        const collectionName = groupData.collection; // Saber si está en GrupoPublico o GrupoPrivado
+        const collectionName = groupData.collection;
 
         if(!collectionName) throw new Error("No se encontró el grupo en ninguna colección.");
 
-        // Referencia al grupo correcto
         const groupRef = doc(db, collectionName, groupId);
         await updateDoc(groupRef, details);
 
-        console.log(`Grupo ${groupId} actualizado en ${collectionName} con`, details);
+        //console.log(`Grupo ${groupId} actualizado en ${collectionName} con`, details);
     }
     catch(error){
         console.error("Error al actualizar el grupo:", error);

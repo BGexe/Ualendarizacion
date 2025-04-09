@@ -6,15 +6,12 @@ export const initializeGoogleApi = async () => {
             try {
                 await gapi.client.init({
                     clientId: "183817969866-t7v99abmqbi7pf9n28ak7201sii2jme6.apps.googleusercontent.com",
-                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-                        "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"
-                    ],
+                    discoveryDocs: ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"],
                     scope: "https://www.googleapis.com/auth/calendar.events",
                 });
 
                 const authInstance = gapi.auth2.getAuthInstance();
                 
-                // 🔹 Cerrar sesión antes de autenticar al nuevo usuario
                 if (authInstance.isSignedIn.get()) {
                     await authInstance.signOut();
                 }
@@ -39,38 +36,6 @@ export const signInToGoogle = async () => {
     }
 };
 
-export const createEventInGoogleCalendar = async (eventDetails) => {
-    try {
-        const token = gapi.auth.getToken()?.access_token;
-        if (!token) {
-            throw new Error("No se pudo obtener el token de autenticación.");
-        }
-
-        const response = await fetch(
-            "https://www.googleapis.com/calendar/v3/calendars/primary/events",
-            {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(eventDetails),
-            }
-        );
-
-        const responseData = await response.json();
-
-        if (!response.ok) {
-            throw new Error(responseData.error?.message || "Error desconocido en Google Calendar.");
-        }
-
-        return responseData;
-    } catch (error) {
-        console.error("Error al crear evento en Google Calendar:", error);
-        throw error;
-    }
-};
-
 export const createWeeklyRecurringEvent = async (eventName, description, location, days, hora, fechaInicio, fechaFin) => {
     const dayMap = {
         lunes: "MO",
@@ -84,7 +49,6 @@ export const createWeeklyRecurringEvent = async (eventName, description, locatio
 
     const byDay = days.map(d => dayMap[d.toLowerCase()]);
 
-    // Buscar primera fecha de inicio entre los días seleccionados
     const dayIndex = {
         domingo: 0,
         lunes: 1,
@@ -111,7 +75,7 @@ export const createWeeklyRecurringEvent = async (eventName, description, locatio
     startDate.setMinutes(parseInt(m));
 
     const endDate = new Date(startDate);
-    endDate.setHours(endDate.getHours() + 1); // duración: 1 hora
+    endDate.setHours(endDate.getHours() + 2);
 
     const event = {
         summary: eventName,
@@ -146,7 +110,7 @@ export async function sendEmail(toEmail, subject, message) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                to_email: toEmail,   // Debe coincidir con la clave en Flask
+                to_email: toEmail,
                 subject: subject,
                 message: message
             })
@@ -156,7 +120,7 @@ export async function sendEmail(toEmail, subject, message) {
         if (!response.ok) {
             throw new Error(data.error || "Error desconocido");
         }
-        console.log("Correo enviado con éxito:", data);
+        //console.log("Correo enviado con éxito:", data);
     } catch (error) {
         console.error("Error en la petición:", error);
     }

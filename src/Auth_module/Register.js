@@ -68,8 +68,7 @@ const Register = () => {
     return(
         // Contenedor principal del formulario de registro.
         <div className='register-container container'>
-            <h3> </h3>
-            <form onSubmit={handleSubmit} class="input-wrapper">
+            <form onSubmit={handleSubmit} className="input-wrapper">
                 {/* Campo para ingresar el nombre de usuario. */}
                 <input
                     type="text"
@@ -135,10 +134,8 @@ const Register = () => {
                 </form>
                 {/* Enlace para redirigir al formulario de inicio de sesión si ya tiene cuenta. */}
                 <p>
-                    <center>
-                        ¿Ya tienes una cuenta?{' '}
-                        <span className="button-link" onClick={() => navigate('/')}>Iniciar sesión</span>
-                    </center>
+                    ¿Ya tienes una cuenta?{' '}
+                    <span className="button-link" onClick={() => navigate('/')}>Iniciar sesión</span>
                 </p>
         </div>
     );

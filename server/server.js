@@ -2,6 +2,7 @@ const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
 const cors = require("cors");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
@@ -67,12 +68,6 @@ app.get('/api/calendar/events', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
-
-const nodemailer = require("nodemailer");
-
 // Ruta para enviar correos
 app.post('/send-email', async (req, res) => {
   const { to_email, subject, message } = req.body;
@@ -102,4 +97,8 @@ app.post('/send-email', async (req, res) => {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });

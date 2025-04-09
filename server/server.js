@@ -1,13 +1,16 @@
 const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
-//const cors = require("cors");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
 app.use(express.json());
-//app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:3000', 'https://ualendarizacion-production.up.railway.app'], // cambia esto según tu frontend real
+  credentials: true
+}));
 
 app.use(session({
   secret: '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',
@@ -18,7 +21,7 @@ app.use(session({
 const oauth2Client = new google.auth.OAuth2(
   '183817969866-t7v99abmqbi7pf9n28ak7201sii2jme6.apps.googleusercontent.com',
   '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',
-  'http://localhost:3000/auth/google/callback'
+  'https://ualendarizacion-production.up.railway.app/auth/google/callback'
 );
 
 app.get('/auth/google', (req, res) => {
@@ -65,7 +68,7 @@ app.get('/api/calendar/events', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 const nodemailer = require("nodemailer");

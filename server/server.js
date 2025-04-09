@@ -2,16 +2,12 @@ const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
 const cors = require("cors");
-const nodemailer = require("nodemailer");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const port = process.env.PORT || 5001;
 app.use(express.json());
-app.use(cors({
-  origin: ['http://localhost:3000', 'https://ualendarizacion-production.up.railway.app'], // cambia esto según tu frontend real
-  credentials: true
-}));
+app.use(cors());
 
 app.use(session({
   secret: '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',
@@ -22,7 +18,7 @@ app.use(session({
 const oauth2Client = new google.auth.OAuth2(
   '183817969866-t7v99abmqbi7pf9n28ak7201sii2jme6.apps.googleusercontent.com',
   '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',
-  'https://ualendarizacion-production.up.railway.app/auth/google/callback'
+  'http://localhost:3000/auth/google/callback'
 );
 
 app.get('/auth/google', (req, res) => {
@@ -68,37 +64,6 @@ app.get('/api/calendar/events', async (req, res) => {
   }
 });
 
-// Ruta para enviar correos
-app.post('/send-email', async (req, res) => {
-  const { to_email, subject, message } = req.body;
-
-  if (!to_email || !subject || !message) {
-    return res.status(400).json({ error: "Faltan datos en la solicitud" });
-  }
-
-  try {
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: process.env.EMAIL_ADDRESS,
-        pass: process.env.EMAIL_PASSWORD,
-      }
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_ADDRESS,
-      to: to_email,
-      subject: subject,
-      text: message
-    });
-
-    res.status(200).json({ message: `Correo enviado a ${to_email}` });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });

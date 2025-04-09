@@ -1,14 +1,13 @@
 const express = require('express');
 const { google } = require('googleapis');
 const session = require('express-session');
-const nodemailer = require("nodemailer");
-const cors = require("cors");
+//const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const port = 5001;
+const PORT = process.env.PORT || 5001;
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
 
 app.use(session({
   secret: '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',
@@ -64,8 +63,40 @@ app.get('/api/calendar/events', async (req, res) => {
     res.status(500).send('Error al obtener eventos');
   }
 });
-/*
-app.listen(port, () => {
+
+app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
-*/
+
+const nodemailer = require("nodemailer");
+
+// Ruta para enviar correos
+app.post('/send-email', async (req, res) => {
+  const { to_email, subject, message } = req.body;
+
+  if (!to_email || !subject || !message) {
+    return res.status(400).json({ error: "Faltan datos en la solicitud" });
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.EMAIL_ADDRESS,
+        pass: process.env.EMAIL_PASSWORD,
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_ADDRESS,
+      to: to_email,
+      subject: subject,
+      text: message
+    });
+
+    res.status(200).json({ message: `Correo enviado a ${to_email}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});

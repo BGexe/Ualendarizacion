@@ -104,7 +104,7 @@ export const createWeeklyRecurringEvent = async (eventName, description, locatio
 
 export async function sendEmail(toEmail, subject, message) {
     try {
-        const response = await fetch("http://127.0.0.1:5002/send-email", {
+        const response = await fetch("https://ualendarizacion-production.up.railway.app/send-email", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

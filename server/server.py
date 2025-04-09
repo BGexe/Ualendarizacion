@@ -7,8 +7,8 @@ from email.mime.text import MIMEText
 app = Flask(__name__)
 CORS(app)  # Permite peticiones desde React
 
-EMAIL_ADDRESS = "ualendarizacion@gmail.com"
-EMAIL_PASSWORD = "aegydpmppdqsmfhw"
+EMAIL_ADDRESS = os.environ.get("EMAIL_ADDRESS")
+EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 
 @app.route('/send-email', methods=['POST'])
 def send_email():
@@ -35,4 +35,6 @@ def send_email():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(port=5002, debug=True)
+    #app.run(port=5002, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # Usa 5000 por defecto si no está definido
+    app.run(host="0.0.0.0", port=port)

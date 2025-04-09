@@ -12,6 +12,7 @@ import Group from './Group_module/Group';
 import EditGroup from './Group_module/EditGroup';
 import CreateWeeklyEvent from './Group_module/CreateWeeklyEvent';
 import CreateUniqueEvent from './Group_module/CreateUniqueEvent';
+import EventAuthorization from './Group_module/EventAuthorization';
 import Error404 from './Error404';
 
 const App = () => {
@@ -31,6 +32,7 @@ const App = () => {
                 <Route path="/Edit-group/:id" element={<EditGroup />} />
                 <Route path="/Create-weekly-event/:id" element={<CreateWeeklyEvent />} />
                 <Route path="/Create-unique-event/:id" element={<CreateUniqueEvent />} />
+                <Route path="/autorizar-evento/:id" element={<EventAuthorization />} />
                 </Routes>
             </div>
         </Router>

@@ -71,6 +71,73 @@ export const createEventInGoogleCalendar = async (eventDetails) => {
     }
 };
 
+export const createWeeklyRecurringEvent = async (eventName, description, location, days, hora, fechaInicio, fechaFin) => {
+    const dayMap = {
+        lunes: "MO",
+        martes: "TU",
+        miercoles: "WE",
+        jueves: "TH",
+        viernes: "FR",
+        sabado: "SA",
+        domingo: "SU"
+    };
+
+    const byDay = days.map(d => dayMap[d.toLowerCase()]);
+
+    // Buscar primera fecha de inicio entre los días seleccionados
+    const dayIndex = {
+        domingo: 0,
+        lunes: 1,
+        martes: 2,
+        miercoles: 3,
+        jueves: 4,
+        viernes: 5,
+        sabado: 6
+    };
+
+    let startDate = null;
+    for (const d of days) {
+        const target = dayIndex[d.toLowerCase()];
+        const temp = new Date(fechaInicio);
+        const diff = (target - temp.getDay() + 7) % 7;
+        temp.setDate(temp.getDate() + diff);
+        if (!startDate || temp < startDate) {
+            startDate = temp;
+        }
+    }
+
+    const [h, m] = hora.split(":");
+    startDate.setHours(parseInt(h));
+    startDate.setMinutes(parseInt(m));
+
+    const endDate = new Date(startDate);
+    endDate.setHours(endDate.getHours() + 1); // duración: 1 hora
+
+    const event = {
+        summary: eventName,
+        description,
+        location,
+        start: {
+            dateTime: startDate.toISOString(),
+            timeZone: "America/Mexico_City",
+        },
+        end: {
+            dateTime: endDate.toISOString(),
+            timeZone: "America/Mexico_City",
+        },
+        recurrence: [
+            `RRULE:FREQ=WEEKLY;BYDAY=${byDay.join(",")};UNTIL=${fechaFin.toISOString().replace(/[-:]/g, "").split(".")[0]}Z`
+        ],
+    };
+
+    const response = await gapi.client.calendar.events.insert({
+        calendarId: 'primary',
+        resource: event,
+    });
+
+    return response.result;
+};
+
 export async function sendEmail(toEmail, subject, message) {
     try {
         const response = await fetch("http://127.0.0.1:5002/send-email", {
@@ -94,83 +161,3 @@ export async function sendEmail(toEmail, subject, message) {
         console.error("Error en la petición:", error);
     }
 }
-
-/*
-const nodemailer = require('nodemailer');
-require('dotenv').config();
-
-// Configurar el transportador de Nodemailer con tus credenciales de Gmail
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        //user: process.env.EMAIL_USER,  // Tu correo
-        user: 'ualendarizacion@gmail.com',  // Tu correo
-        //pass: process.env.EMAIL_PASS   // Tu contraseña o contraseña de aplicación de Google
-        pass: '20Ualendarizacion25'   // Tu contraseña o contraseña de aplicación de Google
-    }
-});
-
-export const sendEventInvitationEmails = async (eventId, groupId, eventDetails) => {
-    try {
-        // Obtener el grupo de Firestore
-        const groupRef = doc(db, "GrupoPublico", groupId);
-        let groupSnap = await getDoc(groupRef);
-
-        if (!groupSnap.exists()) {
-            // Si no está en GrupoPublico, buscar en GrupoPrivado
-            const privateGroupRef = doc(db, "GrupoPrivado", groupId);
-            groupSnap = await getDoc(privateGroupRef);
-            if (!groupSnap.exists()) {
-                throw new Error("No se encontró el grupo.");
-            }
-        }
-
-        const groupData = groupSnap.data();
-        const userUids = groupData.Usuarios || [];
-
-        if (userUids.length === 0) {
-            console.log("No hay usuarios en el grupo.");
-            return;
-        }
-
-        // Obtener correos electrónicos de los usuarios en la colección users
-        const usersQuery = query(collection(db, "users"), where("__name__", "in", userUids));
-        const usersSnap = await getDocs(usersQuery);
-        const emails = usersSnap.docs.map(doc => doc.data().email).filter(email => email);
-
-        if (emails.length === 0) {
-            console.log("No se encontraron correos de los usuarios.");
-            return;
-        }
-
-        // Construir el enlace para agregar el evento a Google Calendar
-        const googleCalendarLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(eventDetails.summary)}&details=${encodeURIComponent(eventDetails.description)}&dates=${eventDetails.start.dateTime.replace(/[-:]/g, "").slice(0, -1)}/${eventDetails.end.dateTime.replace(/[-:]/g, "").slice(0, -1)}`;
-
-        // Enviar correos con el enlace
-        for (const email of emails) {
-            await sendEmail(email, googleCalendarLink, eventDetails);
-        }
-
-        console.log("Correos enviados exitosamente.");
-    } catch (error) {
-        console.error("Error al enviar invitaciones por correo:", error);
-    }
-};
-
-// Función para enviar correo usando Nodemailer
-const sendEmail = async (recipientEmail, eventLink, eventDetails) => {
-    const mailOptions = {
-        from: 'ualendarizacion@gmail.com', // Tu correo
-        to: recipientEmail,           // Correo del destinatario
-        subject: `Invitación al evento: ${eventDetails.summary}`,
-        text: `Hola,\n\nTe invitamos al siguiente evento:\n\n${eventDetails.summary}\n\nDetalles:\n${eventDetails.description}\n\nAgrega el evento a tu Google Calendar: ${eventLink}\n\nSaludos!`
-    };
-
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Correo enviado a ${recipientEmail}: ${info.response}`);
-    } catch (error) {
-        console.error(`Error al enviar correo a ${recipientEmail}:`, error);
-    }
-};
-*/

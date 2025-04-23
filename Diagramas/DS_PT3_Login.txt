@@ -15,12 +15,12 @@ App->Login:<Login />
 Login-->App:jsx
 App->User:Muestra interfaz 1
 
-alt El usuario hace click en 'Iniciar sesión'
+alt #orange El usuario hace click en 'Iniciar sesión'
     User -> Login:Hace click en botón 'Iniciar sesión'
     Login -> AuthService:await login( \n  usernameOrEmail,\n  password\n)
-    opt Si el usuario ingresó una cadena de caracteres sin @
+    opt #lightblue Si el usuario ingresó una cadena de caracteres sin @
         AuthService -> Firestore:query(\n collection(db, "users"),\n where("username", "==", usernameOrEmail)\n)
-        alt Si el username no existe
+        alt #lightgreen Si el username no existe
             Firestore --> AuthService:throw error(\n "El nombre de usuario y/o contraseña no son correctos."\n)
             AuthService --> Login:throw error(\n  "El nombre de usuario y/o contraseña no son correctos."\n)
             Login -> ShowAlert:await showError(\n error.message\n)
@@ -35,7 +35,7 @@ alt El usuario hace click en 'Iniciar sesión'
     end
             AuthService -> FirebaseAuth:await signInWithEmailAndPassword(\n auth, email, password\n)
 
-    alt Si las credenciales son incorrectas
+    alt #pink Si las credenciales son incorrectas
         FirebaseAuth --> AuthService:throw error(\n "Usuario o contraseña incorrectos"\n)
         AuthService --> Login:throw error(\n "Usuario o contraseña incorrectos"\n)
         Login -> ShowAlert:await showError(\n error.message\n)
@@ -47,7 +47,7 @@ ShowAlert-->Login:Return
 
     else Si las credenciales son correctas
         FirebaseAuth --> AuthService:{user, credential, operationType}
-        alt Si el correo no está verificado
+        alt #lightgray Si el correo no está verificado
             AuthService --> Login:throw error(\n "Por favor, verifica tu correo electrónico antes de iniciar sesión."\n)
             Login -> ShowAlert:await showError(\n error.message\n)
             ShowAlert -> User:Muestra interfaz 12

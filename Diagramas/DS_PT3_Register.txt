@@ -14,9 +14,9 @@ App->Register:<Register />
 Register-->App:jsx
 App->User:Muestra interfaz 0
 
-alt El usuario hace click en 'Registrarse'
+alt #orange El usuario hace click en 'Registrarse'
     User -> Register:Hace click en botón 'Registrarse'
-    alt Si hay campos faltantes
+    alt #lightblue Si hay campos faltantes
         Register -> ShowAlert:await showError(\n "Completa los campos:[campos]"\n)
         ShowAlert -> User:Muestra interfaz 11
         User -> ShowAlert:Hace click en botón 'Ok'
@@ -24,7 +24,7 @@ alt El usuario hace click en 'Registrarse'
         ShowAlert --> Register:Return
         == Ir a Secuencias desde IU #0 Register ==
     else Si no hay campos faltantes
-        alt Si las contraseñas no coinciden
+        alt #lightgreen Si las contraseñas no coinciden
             Register -> ShowAlert:await showError(\n "Las contraseñas no coinciden"\n)
             ShowAlert -> User:Muestra interfaz 11
             User -> ShowAlert:Hace click en botón 'Ok'
@@ -34,7 +34,7 @@ alt El usuario hace click en 'Registrarse'
         else Si las contraseñas coinciden
             Register -> AuthService:await checkUsernameExists(username)
             AuthService -> Firestore:await getDocs(\n query(\n  collection(db, "users"),\n  where("username", "==", username)\n )\n)
-            alt Si el nombre de usuario existe
+            alt #lightyellow Si el nombre de usuario existe
                 Firestore --> AuthService:Return querySnapshot
                 AuthService --> Register:Return 'true'
                 Register -> ShowAlert:await showError(\n "El nombre de usuario ya está en uso"\n)
@@ -48,25 +48,25 @@ alt El usuario hace click en 'Registrarse'
                 AuthService --> Register:Return 'false'
                 Register -> AuthService:await register(\n username,\n nombre,\n apellido,\n email,\n password,\n profileBase64\n)    
                     AuthService -> FirebaseAuth:await createUserWithEmailAndPassword(\n auth,\n email,\n password\n)
-                alt ocurre un error durante el await
+                alt #pink ocurre un error durante el await
                     FirebaseAuth --> AuthService:throw error
                     == Ir a opt [Si ocurre un error durante el registro] ==
                 else await createUSerWithEmailAndPassword no genera error 
                     FirebaseAuth --> AuthService:Return
                         AuthService -> FirebaseAuth:await updateProfile(\n userCredential.user,\n {displayName:`${nombre} ${apellido}`,}\n)
-                    alt ocurre un error durante el await
+                    alt #lightgray ocurre un error durante el await
                         FirebaseAuth --> AuthService:throw error
                         == Ir a opt [Si ocurre un error durante el registro] ==
                     else await updateProfile no genera error
                         FirebaseAuth --> AuthService:Return
                             AuthService -> FirebaseAuth:await sendEmailVerification(\n user\n)
-                        alt ocurre un error durante el await
+                        alt #lightcyan ocurre un error durante el await
                             FirebaseAuth --> AuthService:throw error
                             == Ir a opt [Si ocurre un error durante el registro] ==
                         else await sendEmailVerification no genera error
                             FirebaseAuth --> AuthService:Return
                                 AuthService->Firestore:await setDoc(\n doc(db, "users", user.uid),\n {\n  username,\n  nombre,\n  apellido,\n  email,\n  password,\n  photoBase64:profileBase64,\n  headerColor:"#54a3ff",\n  createdAt:new Date(),\n }\n)
-                            alt ocurre un error durante el await
+                            alt #brown ocurre un error durante el await
                                 Firestore --> AuthService:throw error
                                 == Ir a opt [Si ocurre un error durante el registro] ==
                             else await setDoc no genera error
@@ -84,7 +84,7 @@ alt El usuario hace click en 'Registrarse'
                         end
                     end
                 end
-                opt Si ocurre un error durante el registro
+                opt #brown Si ocurre un error durante el registro
                     AuthService --> Register:throw error(\n "Falló el registro. Inténtelo de nuevo."\n)
                     Register -> ShowAlert:await showError(\n error.message\n)
                     ShowAlert -> User:Muestra interfaz 11

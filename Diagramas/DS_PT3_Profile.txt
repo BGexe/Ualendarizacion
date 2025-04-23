@@ -2,92 +2,263 @@ title 3.- Secuencias desde IU #3 Profile
 
 actor User
 participant "Profile.js" as Profile
+participant "Sistema Operativo" as Siso
+participant "browser-image-compression" as ImCom
+participant useState
+participant "API navegador" as APInav
 participant "UserService.js" as UserService
 participant "firebase/auth" as FirebaseAuth
 participant "firebase/firestore" as Firestore
 participant "react-router-dom" as Router
 participant "App.js" as App
-participant "EditProfile.js" as EditProfile
 participant "ShowAlert.js" as ShowAlert
 
-alt El usuario abre su perfil
-    User -> Profile: Carga la página de perfil
-    Profile -> localStorage: Obtiene datos del usuario
-    alt Si hay datos en localStorage
-        localStorage --> Profile: Retorna datos del usuario
-        Profile -> User: Muestra interfaz 3 con los datos del usuario
-    else Si no hay datos en localStorage
-        Profile -> UserService: await getUserData(user.uid)
-        UserService -> Firestore: await getDoc(doc(db, "users", uid))
-        alt Si los datos del usuario existen
-            Firestore --> UserService: Retorna datos del usuario
-            UserService --> Profile: Retorna datos del usuario
-            Profile -> localStorage: Guarda datos del usuario
-            Profile -> User: Muestra interfaz 3 con los datos del usuario
-        else Si no existen datos del usuario
-            Firestore --> UserService: throw error(\n "No se encontraron datos para este usuario."\n)
-            UserService --> Profile: throw error
-            Profile -> Router: navigate("/")
-        end
+Router -> App:Pasa ruta "/Profile"
+App -> Profile:<Profile />
+Profile --> App:jsx
+App -> User:Muestra interfaz 3
+
+Profile -> APInav:localStorage.getItem("users")
+alt #lightblue Si hay datos del usuario en localStorage
+APInav --> Profile:return savedUserData
+    Profile -> useState:setUser(savedUserData)
+    useState --> Profile:Return
+    Profile -> useState:setProfilePicture(\n  savedUserData.photoBase64 \n  || DEFAULT_PROFILE_PICTURE\n)
+    useState --> Profile:Return
+    Profile -> useState:setHeaderColor(savedUserData.headerColor)
+    useState --> Profile:Return
+    Profile -> APInav:applyUserStyle(savedUserData.headerColor)
+    APInav --> Profile:Return
+else Si no hay datos en localStorage
+APInav --> Profile:return null
+    Profile->UserService:await getUserData(auth.currentUser.uid)
+    UserService -> Firestore:await getDoc(docRef)
+    alt #pink Si el usuario no existe en firestore
+        Firestore --> UserService:return { exists: false }
+        UserService --> Profile:throw new Error()
+        Profile -> Router:navigate("/")
+        == Ir a Secuencias desde IU #1 Login ==
+    else Si el usuario existe en firestore
+        Firestore --> UserService:return { \n  exists: true,\n  data: data }
+        UserService-->Profile:return docSnap.data()
+        Profile -> useState:setUser(userData)
+        useState --> Profile:Return
+        Profile -> useState:setProfilePicture(\n  userData.photoBase64\n  || DEFAULT_PROFILE_PICTURE\n)
+        useState --> Profile:Return
+        Profile -> useState:setHeaderColor(userData.headerColor)
+        useState --> Profile:Return
+        Profile -> APInav:applyUserStyle(userData.headerColor)
+        APInav --> Profile:Return
+        Profile -> APInav:localStorage.setItem("user", JSON.stringify(userData))
+        APInav --> Profile:Return
     end
 end
 
-alt El usuario edita su perfil
-    User -> Profile: Hace click en 'Editar perfil'
-    Profile -> Router: navigate('/EditProfile')
-    Router -> App: Pasa ruta '/EditProfile'
-    App -> EditProfile: Invoca element={\n <EditProfile />\n}
-    EditProfile -> User: Muestra interfaz 4
+Profile -> Firestore:await getDocs(\n  query(\n    collection(db, "Trimestre"),\n    where("fin_trimestre", "<", now)\n  )\n)
+alt #pink Si no hay trimestres vencidos
+Firestore --> Profile:return trimestreSnapshot.empty: true
+== Ir a bloque opt Secuencial ==
+else Si hay trimestres vencidos
+    Firestore --> Profile:return trimestreSnapshot.empty: false
+    Profile -> Firestore:getDocs(\n  query(\n    collection(db, "GrupoPublico"),\n    where("id_trimestre", "in",\n      trimestreSnapshot.docs.map(doc => \n        doc.data().id_trimestre)\n    )\n  )\n)
+    alt #pink Si no hay grupos con trimestres vencidos
+    Firestore --> Profile:return groupSnapshot.empty: true
+    == Ir a bloque opt Secuencial ==
+    else Si hay grupos con trimestres vencidos
+    Firestore --> Profile:return groupSnapshot.empty: false
+        Profile -> Firestore:await Promise.all(groupSnapshot.docs.map)
+        loop #yellow mapeo sobre todos los grupos
+            Profile -> Firestore:deleteDoc(doc(db, "GrupoPublico", groupId))
+            Firestore --> Profile:return
+            Profile -> Firestore:getDocs(\n  query(\n    collection(db, "users"),\n    where("UsuarioGrupo", "array-contains", groupId)\n  )\n)
+            alt #lightblue Si no hay usuarios que lo siguen
+            Firestore --> Profile:return usersSnapshot.empty: true
+            == Ir a bloque opt Secuencial ==
+            else Si hay usuarios que lo siguen
+            Firestore --> Profile:return usersSnapshot.empty: false
+                Profile -> Firestore:await Promise.all(usersSnapshot.docs.map)
+                loop #yellow mapeo sobre todos los usuarios
+                    Profile -> Firestore:updateDoc(\n  doc(db, "users", userDoc.id), { \n    UsuarioGrupo: userData.UsuarioGrupo.filter(\n      id => id !== groupId\n    )\n  }\n)
+                Firestore --> Profile:return
+                end
+            end
+            Firestore --> Profile:return
+        end
+    end
+end
+opt #brown Secuencial
+Profile -> Firestore:await Promise.all
+loop #yellow mapeo sobre las colecciones
+Profile -> Firestore:getDocs(collection(db, "GrupoPublico"))
+Firestore --> Profile:return publicGroupSnapshot
+Profile -> Firestore:getDocs(collection(db, "GrupoPrivado"))
+Firestore --> Profile:return privateGroupSnapshot
+Firestore --> Profile:return
+end
+alt #lightblue Si no hay grupos en la colección GrupoPublico y GrupoPrivado
+== Saltar a las secuencias de clicks del usuario ==
+else Si hay grupos en la colección GrupoPublico o GrupoPrivado
+    Profile -> Firestore:await Promise.all(snapshot.docs.map)
+    loop #yellow mapeo sobre todos los grupos de la colección
+        alt #lightgreen si el grupo tiene usuarios
+        == Saltar a las secuencias de clicks del usuario ==
+        else si el grupo no tiene usuarios
+            Profile -> Firestore:await deleteDoc(doc(db, collectionName, docSnap.id))
+            Firestore --> Profile:return
+        end
+    Firestore --> Profile:return
+    end
+end
+end
+
+alt #orange El usuario hace click en "profile picture"
+    User -> Profile:Hace click en botón "profile-picture"
+    Profile -> Siso:Abre el selector de archivos del sistema
+    alt #lightblue Si el usuario cancela el selector de archivos
+        Siso --> Profile:Return
+        Profile -> User:Muestra interfaz 3
+    else Si el usuario elige un archivo.jpeg o archivo.png
+        Siso --> Profile:Return jpeg, png
+        alt #lightgreen Si el archivo es mayor a 1MB
+            Profile -> ImCom:await imageCompression(file, compressionOptions)
+            ImCom --> Profile:Return archivo comprimido
+        else Si el archivo es menor a 1MB
+            Profile -> APInav:await new Promise()
+            alt #lightyellow Si sale un error al leer el archivo
+                APInav --> Profile:throw error
+                Profile -> ShowAlert:showError(\n "Error al procesar la imagen: ${error.message}"\n)
+                ShowAlert -> User:Muestra interfaz 11
+                User -> ShowAlert:Hace click en botón 'Ok'
+                ShowAlert -> User:Desaparece popup
+                ShowAlert --> Profile:Return
+            else Si la lectura del archivo se completa correctamente
+                APInav --> Profile:Return string en base64
+                Profile -> useState:setProfilePicture(base64);
+                useState --> Profile:Return
+                Profile -> UserService:await updateUserProfile()
+                UserService -> Firestore:await getDoc()
+                alt #pink Si el usuario no existe en firestore
+                    Firestore --> UserService:return { exists: false }
+                    UserService --> Profile:throw new Error()
+                    Profile -> ShowAlert:showError(\n "Error al procesar la imagen: ${error.message}"\n)
+                    ShowAlert -> User:Muestra interfaz 11
+                    User -> ShowAlert:Hace click en botón 'Ok'
+                    ShowAlert -> User:Desaparece popup
+                    ShowAlert --> Profile:Return
+                else Si el usuario existe en firestore
+                    Firestore --> UserService:return { \n  exists: true,\n  data: data }
+                    opt #lightgray Si hay campos por actualizar
+                        UserService -> Firestore:await updateDoc()
+                        alt #lightcyan Si hay errores durante la actualización
+                            Firestore --> UserService:throw error
+                            UserService --> Profile:throw new Error(\n`Error al actualizar los datos: ${error.message}`);
+                            Profile -> ShowAlert:showError(\n "Error al procesar la imagen: ${error.message}"\n)
+                            ShowAlert -> User:Muestra interfaz 11
+                            User -> ShowAlert:Hace click en botón 'Ok'
+                            ShowAlert -> User:Desaparece popup
+                            ShowAlert --> Profile:Return
+                        else Si se actualiza exitosamente
+                            Firestore --> UserService:Return
+                            UserService --> Profile:Return
+                            Profile -> ShowAlert:showSuccess(\n "Foto de perfil actualizada con éxito."\n)
+                            ShowAlert -> User:Muestra interfaz 11
+                            User -> ShowAlert:Hace click en botón 'Ok'
+                            ShowAlert -> User:Desaparece popup
+                            ShowAlert --> Profile:Return
+                        end
+                    end
+                end
+            end
+        end
+    end
+    == Ir a Secuencias desde IU #3 Profile ==
+else El usuario hace click en "edit profile"
+    User -> Profile:Hace click en botón "edit-profile"
+    Profile -> Router:navigate("/edit-profile")
     == Ir a Secuencias desde IU #4 EditProfile ==
+
+else El usuario hace click en "crear grupo público"
+    User -> Profile:Hace click en botón "create-public-group"
+    Profile -> Router:navigate("/create-public-group")
+    == Ir a Secuencias desde IU #6 CreatePublicGroup ==
+
+else El usuario hace click en "crear grupo privado"
+    User -> Profile:Hace click en botón "create-private-group"
+    Profile -> Router:navigate("/create-private-group")
+    == Ir a Secuencias desde IU #7 CreatePrivateGroup ==
+
+else El usuario hace click en un grupo
+    User -> Profile:Hace click en tarjeta del grupo
+    Profile -> Router:navigate("/group/:id")
+    == Ir a Secuencias desde IU #6 Group ==
+
+else El usuario hace click en "logout"
+    User -> Profile:Hace click en botón "logout"
+    Profile -> FirebaseAuth:await signOut()
+    alt #brown Si ocurre un error al cerrar sesión
+        FirebaseAuth --> Profile:throw new Error()
+        Profile -> ShowAlert:showError(\n "Error al cerrar sesión. Inténtalo de nuevo."\n)
+        ShowAlert -> User:Muestra interfaz 11
+        User -> ShowAlert:Hace click en botón 'Ok'
+        ShowAlert -> User:Desaparece popup
+        ShowAlert --> Profile:Return
+        == Ir a Secuencias desde IU #3 Profile ==
+    else Si el logout es exitoso
+        FirebaseAuth --> Profile:Return
+        Profile -> Router:navigate("/login")
+        == Ir a Secuencias desde IU #1 Login ==
+    end
 end
 
-alt El usuario actualiza su foto de perfil
-    User -> Profile: Hace click en 'Actualizar foto de perfil'
-    Profile -> User: Abre el explorador de archivos
-    User -> Profile: Selecciona un archivo
-    Profile -> Profile: Verifica formato y tamaño de la imagen
-    alt Si la imagen no es válida
-        Profile -> ShowAlert: await showError(\n "Solo se permiten archivos JPG, JPEG y PNG."\n)
-        ShowAlert -> User: Muestra interfaz de error
-        User -> ShowAlert: Hace click en botón 'Ok'
-        ShowAlert -> User: Muestra interfaz 3
-    else Si la imagen es válida
-        Profile -> Profile: Convierte imagen a Base64
-        Profile -> UserService: await updateUserProfile(user.uid, null, null, photoBase64)
-        UserService -> Firestore: await updateDoc(doc(db, "users", uid), {photoBase64})
-        alt Si la actualización es exitosa
-            Firestore --> UserService: Return exito
-            UserService --> Profile: Return "Foto de perfil actualizada con éxito."
-            Profile -> ShowAlert: await showSuccess(\n "Foto de perfil actualizada con éxito."\n)
-            ShowAlert -> User: Muestra interfaz de éxito
-            User -> ShowAlert: Hace click en botón 'Ok'
-            ShowAlert -> User: Muestra interfaz 3 con nueva foto
-        else Si ocurre un error
-            Firestore --> UserService: throw error(\n "Error al actualizar la foto de perfil."\n)
-            UserService --> Profile: throw error
-            Profile -> ShowAlert: await showError(\n error.message\n)
-            ShowAlert -> User: Muestra interfaz de error
-            User -> ShowAlert: Hace click en botón 'Ok'
-            ShowAlert -> User: Muestra interfaz 3
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+else El usuario escribe en la barra de búsqueda
+    User -> Profile:Escribe en <input type="text" />
+    Profile -> useState:setSearchTerm()
+    useState --> Profile:Return
+    note over Profile:useEffect dispara searchGroups()
+
+    alt #pink Si el usuario no está cargado aún
+        Profile -> Profile:Return
+    else Si hay usuario cargado
+        Profile -> UserService:getUserData(uid)
+        UserService -> Firestore:getDoc()
+        alt #pink Si el usuario no existe
+            Firestore --> UserService:return { exists: false }
+            UserService --> Profile:throw new Error()
+            Profile -> ShowAlert:showError("Error al buscar grupos")
+            ShowAlert -> User:Muestra interfaz 11
+            User -> ShowAlert:Click 'Ok'
+            ShowAlert -> User:Desaparece popup
+            ShowAlert --> Profile:Return
+        else El usuario sí existe
+            Firestore --> UserService:return { data }
+            opt #lightblue Si está activado "Grupos no seguidos"
+                alt #orange Si searchTerm está vacío
+                    Profile -> useState:setPublicGroups([])
+                    useState --> Profile:Return
+                else Si hay searchTerm
+                    Profile -> Firestore:getDocs(query con nombre_uea)
+                    loop Para cada grupo no seguido
+                        Profile -> UserService:getUserData(group.profesor)
+                        Firestore -> UserService:getDoc()
+                        UserService --> Profile:profesor info
+                    end
+                    Profile -> useState:setPublicGroups(grupos)
+                    useState --> Profile:Return
+                end
+            else Está desactivado "Grupos no seguidos"
+                Profile -> Firestore:getDocs(followedGroupIds)
+                loop Para cada grupo seguido
+                    Profile -> Firestore:getDoc()
+                    Profile -> UserService:getUserData(group.profesor)
+                    Firestore -> UserService:getDoc()
+                end
+                Profile -> useState:setPublicGroups(grupos filtrados)
+                useState --> Profile:Return
+            end
         end
     end
 end
 
-alt El usuario busca grupos públicos
-    User -> Profile: Ingresa término de búsqueda
-    Profile -> Firestore: await getDocs(query(GrupoPublico, where("nombre_uea", ">= ", searchTerm)))
-    Firestore --> Profile: Retorna lista de grupos
-    Profile -> User: Muestra resultados de búsqueda
-end
-
-alt El usuario cierra sesión
-    User -> Profile: Hace click en 'Cerrar sesión'
-    Profile -> localStorage: Elimina objeto 'user'
-    Profile -> FirebaseAuth: await signOut(auth)
-    FirebaseAuth --> Profile: Retorna éxito
-    Profile -> Router: navigate('/')
-    Router -> App: Pasa ruta '/'
-    App -> Login: Invoca element={\n <Login />\n}
-    Login -> User: Muestra interfaz 1
-    == Ir a Secuencias desde IU #1 Login ==
-end
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

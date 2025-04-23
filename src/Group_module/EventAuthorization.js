@@ -14,6 +14,14 @@ const EventAuthorization = () => {
   const [authenticating, setAuthenticating] = useState(false);
 
   useEffect(() => {
+    document.body.style.backgroundColor = "#87cefa"; // negro
+    // Limpiar el estilo cuando se abandone la página
+    return () => {
+      document.body.style.backgroundColor = ""; // restaurar el color anterior
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchEvent = async () => {
       if (!eventId) {
         showError("ID de evento no válido.");
@@ -61,9 +69,7 @@ const EventAuthorization = () => {
         eventData.inicio_trimestre.toDate(),
         eventData.fin_trimestre.toDate()
       );
-
-      showSuccess("Evento agregado a tu calendario.");
-      navigate("/Profile");
+      window.location.href = "https://calendar.google.com/";
     } catch (error) {
       console.error("Error al autorizar evento:", error);
       showError("No se pudo agregar el evento.");

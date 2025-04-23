@@ -1,6 +1,7 @@
 // UserService.js ayuda a acceder a los datos del usuario
 import {doc, updateDoc, getDoc} from "firebase/firestore";
 import {db} from '../Firebase';
+
 export const getUserData = async(uid) => {
     const docRef = doc(db, "users", uid);
     const docSnap = await getDoc(docRef);
@@ -11,6 +12,7 @@ export const getUserData = async(uid) => {
         throw new Error("No se encontraron datos para este usuario.");
     }
 };
+
 export const updateUserProfile = async(uid, newNombre, newApellido, photoBase64, extraFields = {}) => {
     try{
         const userRef = doc(db, "users", uid);
@@ -22,7 +24,7 @@ export const updateUserProfile = async(uid, newNombre, newApellido, photoBase64,
         if(Object.keys(updatedFields).length > 0){
             await updateDoc(userRef, updatedFields);
         }
-        return "Datos actualizados correctamente.";
+        return;
     }
     catch(error){
         throw new Error(`Error al actualizar los datos: ${error.message}`);

@@ -1,17 +1,17 @@
 direction: down
-app_js: "app_js\n(40 lines)" {
-  style: {stroke-width: 2}
+app_js: "app_js\n(44 lines)" {
+  style: {stroke-width: 1}
   shape: "rectangle"
 }
 auth_module_authservice_js: "auth_module_authservice_js\n(98 lines)" {
-  style: {stroke-width: 3}
-  shape: "rectangle"
-}
-auth_module_login_js: "auth_module_login_js\n(85 lines)" {
   style: {stroke-width: 2}
   shape: "rectangle"
 }
-auth_module_register_js: "auth_module_register_js\n(138 lines)" {
+auth_module_login_js: "auth_module_login_js\n(81 lines)" {
+  style: {stroke-width: 2}
+  shape: "rectangle"
+}
+auth_module_register_js: "auth_module_register_js\n(144 lines)" {
   style: {stroke-width: 3}
   shape: "rectangle"
 }
@@ -35,7 +35,7 @@ index_js: "index_js\n(15 lines)" {
   style: {stroke-width: 1}
   shape: "rectangle"
 }
-style_css: "style_css\n(843 lines)" {
+style_css: "style_css\n(915 lines)" {
   style: {stroke-width: 15}
   shape: "rectangle"
 }
@@ -137,11 +137,5 @@ error404_js -> react: "React" {
 firebase_js -> firebase_app: "initializeApp" {style: {stroke: "#808080"}}
 firebase_js -> firebase_auth: "getAuth" {style: {stroke: "#808080"}}
 firebase_js -> firebase_firestore: "getFirestore" {style: {stroke: "#808080"}}
-index_js -> react: "React" {
-  style: {
-    stroke: "#61DAFB"
-    stroke-dash: 5
-  }
-}
 index_js -> react-dom_client: "ReactDOM" {style: {stroke: "#808080"}}
 index_js -> app_js: "App" {style: {stroke: "#808080"}}

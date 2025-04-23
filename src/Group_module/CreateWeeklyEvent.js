@@ -114,7 +114,7 @@ const CreateWeeklyEvent = () => {
             fin_trimestre: fechaFin,
           });
     
-          const link = `https://ualendarizacion-production.up.railway.app/Event-authorization/${eventRef.id}`;
+          const link = `http://localhost:3000/Event-authorization/${eventRef.id}`;
           for (const userEmail of emails) {
             await sendEmail(
               userEmail,

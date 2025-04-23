@@ -1,0 +1,169 @@
+UITD "UALENDARIZACIÓN" {
+    UI 0 "Registro" actions {
+      clicks "Registrarse";
+      clicks "Iniciar sesión";
+    }
+    UI 1 "Iniciar sesión" actions {
+      clicks "Iniciar sesión";
+      clicks "Registrarse";
+      clicks "¿Olvidé mi contraseña?";
+    }
+    UI 2 "Recuperar contraseña" actions {
+      clicks "Enviar correo";
+      clicks "Cerrar";
+    }
+    UI 3 "Perfil" actions {
+      clicks "Editar perfil";
+      clicks "Cerrar sesión";
+      clicks "Crear grupo público";
+      clicks "Crear grupo privado";
+      clicks "Seleccionar grupo";
+    }
+    UI 4 "Editar perfil" actions{
+      clicks "Guardar cambios";
+      clicks "Cerrar";
+    }
+    UI 5 "Grupo" actions {
+      clicks "Editar grupo";
+      clicks "Regresar";
+      clicks "Compartir grupo";
+      clicks "Salir de grupo";
+      clicks "Lista de alumnos";
+      clicks "Crear evento semanal";
+      clicks "Crear evento único";
+      clicks "Editar evento semanal";
+      clicks "Editar evento único";
+    }
+    UI 6 "Editar grupo público" actions {
+      clicks "Guardar grupo";
+      clicks "Cerrar";
+    }
+    UI 7 "Editar grupo privado" actions {
+      clicks "Guardar grupo";
+      clicks "Cerrar";
+    }
+    UI 8 "Editar evento semanal" actions {
+      clicks "Guardar evento";
+      clicks "Cerrar";
+    }
+    UI 9 "Editar evento único" actions {
+      clicks "Guardar evento";
+      clicks "Cerrar";
+    }
+    UI 10 "Lista de alumnos" actions {
+      clicks "Eliminar alumno";
+      clicks "Cerrar";
+    }
+    UI 11 "Error registro" actions {
+      clicks "Ok";
+    }
+    UI 12 "Error inciar sesión" actions {
+      clicks "Ok";
+    }
+    UI 13 "Error editar perfil" actions {
+      clicks "Ok";
+    }
+    UI 14 "Éxito editar perfil" actions {
+      clicks "Ok";
+    }
+    UI 15 "Error editar grupo" actions {
+      clicks "Ok";
+    }
+    UI 16 "Éxito editar grupo" actions {
+      clicks "Ok";
+    }
+    UI 17 "Error editar evento" actions {
+      clicks "Ok";
+    }
+    UI 18 "Éxito editar evento" actions {
+      clicks "Ok";
+    }
+    UI 19 "Autorizar evento" actions {
+      clicks "Agregar a Google Calendar";
+    }
+    UI 20 "Gmail" actions {
+      clicks "link del evento";
+    }
+    UI 21 "Google Calendar" actions {
+    }
+    UI 22 "Error agregar evento" actions {
+      clicks "Ok";
+    }
+    UI 23 "Cuentas de Google" actions {
+      clicks "Seleccionar cuenta";
+    }
+    FRAGMENT "Login and register" {
+      DRAW { 0, 1, 2, 3, 11, 12};
+      TRANSITION from 0 to 1 if user clicks "Iniciar sesión" width 30;
+      TRANSITION from 0 to 3 if user clicks "Registrarse" AND "Datos correctos" width 50;
+      TRANSITION from 0 to 11 if user clicks "Registrarse" AND "Datos incorrectos" width 50;
+      TRANSITION from 11 to 0 if user clicks "Ok" width 30;
+      TRANSITION from 1 to 0 if user clicks "Registrarse" width 30;
+      TRANSITION from 1 to 2 if user clicks "¿Olvidé mi contraseña?" width 30;
+      TRANSITION from 1 to 3 if user clicks "Iniciar sesión" AND "Datos correctos" width 50;
+      TRANSITION from 1 to 12 if user clicks "Iniciar sesión" AND "Datos incorrectos" width 50;
+      TRANSITION from 12 to 1 if user clicks "Ok" width 30;
+      TRANSITION from 2 to 1 if user clicks "Cerrar" width 30;
+      TRANSITION from 2 to 1 if user clicks "Enviar correo" width 30;
+      TRANSITION from 3 to 1 if user clicks "Cerrar sesión" width 30;
+    }
+    FRAGMENT "Perfil" {
+      DRAW {3, 4, 5, 6, 7, 13, 14, 15, 16};
+      TRANSITION from 3 to 4 if user clicks "Editar perfil" width 30;
+      TRANSITION from 4 to 3 if user clicks "Cerrar" width 30;
+      TRANSITION from 4 to 13 if user clicks "Guardar cambios" AND "Cambios no guardados" width 50;
+      TRANSITION from 13 to 3 if user clicks "Ok" width 30;
+      TRANSITION from 4 to 14 if user clicks "Guardar cambios" AND "Cambios guardados" width 50;
+      TRANSITION from 14 to 3 if user clicks "Ok" width 30;
+      TRANSITION from 3 to 6 if user clicks "Crear grupo público" width 30;
+      TRANSITION from 6 to 3 if user clicks "Cerrar" width 30;
+      TRANSITION from 6 to 15 if user clicks "Guardar grupo" AND "Grupo no guardado" width 50;
+      TRANSITION from 15 to 3 if user clicks "Ok" width 30;
+      TRANSITION from 6 to 16 if user clicks "Guardar grupo" AND "Grupo guardado" width 50;
+      TRANSITION from 16 to 3 if user clicks "Ok" width 30;
+      TRANSITION from 3 to 7 if user clicks "Crear grupo privado" width 30;
+      TRANSITION from 7 to 3 if user clicks "Cerrar" width 30;
+      TRANSITION from 7 to 15 if user clicks "Guardar grupo" AND "Grupo no guardado" width 50;
+      TRANSITION from 7 to 16 if user clicks "Guardar grupo" AND "Grupo guardado" width 50;
+      TRANSITION from 3 to 5 if user clicks "Seleccionar grupo" width 30;
+      TRANSITION from 5 to 3 if user clicks "Regresar" width 30;
+    }
+    FRAGMENT "Grupos y eventos" {
+      DRAW {3, 5, 6, 7, 8, 9, 10, 15, 16, 17, 18};
+      TRANSITION from 5 to 6 if user clicks "Editar grupo" AND "Usuario en grupo público" width 60;
+      TRANSITION from 6 to 5 if user clicks "Cerrar" width 30;
+      TRANSITION from 6 to 15 if user clicks "Guardar grupo" AND "Grupo no guardado" width 50;
+      TRANSITION from 15 to 5 if user clicks "Ok" width 30;
+      TRANSITION from 6 to 16 if user clicks "Guardar grupo" AND "Grupo guardado" width 50;
+      TRANSITION from 16 to 5 if user clicks "Ok" width 30;
+      TRANSITION from 5 to 7 if user clicks "Editar grupo" AND "Usuario en grupo privado" width 60;
+      TRANSITION from 7 to 5 if user clicks "Cerrar" width 30;
+      TRANSITION from 7 to 15 if user clicks "Guardar grupo" AND "Grupo no guardado" width 50;
+      TRANSITION from 7 to 16 if user clicks "Guardar grupo" AND "Grupo guardado" width 50;
+      TRANSITION from 5 to 5 if user clicks "Compartir grupo" width 30;
+      TRANSITION from 5 to 3 if user clicks "Salir de grupo" width 30;
+      TRANSITION from 5 to 10 if user clicks "Lista de alumnos" width 30;
+      TRANSITION from 10 to 5 if user clicks "Cerrar" width 30;
+      TRANSITION from 10 to 10 if user clicks "Eliminar alumno" width 30;
+      TRANSITION from 5 to 8 if user clicks "Crear evento semanal" width 30;
+      TRANSITION from 8 to 5 if user clicks "Cerrar" width 30;
+      TRANSITION from 8 to 17 if user clicks "Guardar evento" AND "No guardado" width 50;
+      TRANSITION from 17 to 5 if user clicks "Ok" width 30;
+      TRANSITION from 8 to 18 if user clicks "Guardar evento" AND "Guardado" width 50;
+      TRANSITION from 18 to 5 if user clicks "Ok" width 30;
+      TRANSITION from 5 to 8 if user clicks "Editar evento semanal" width 30;
+      TRANSITION from 5 to 9 if user clicks "Crear evento único" width 30;
+      TRANSITION from 9 to 5 if user clicks "Cerrar" width 30;
+      TRANSITION from 9 to 17 if user clicks "Guardar evento" AND "No guardado" width 50;
+      TRANSITION from 9 to 18 if user clicks "Guardar evento" AND "Guardado" width 50;
+      TRANSITION from 5 to 9 if user clicks "Editar evento único" width 30;
+    }
+    FRAGMENT "Autorizacion de eventos" {
+        DRAW {19, 20, 21, 22, 23};
+        TRANSITION from 20 to 19 if user clicks "link del evento" width 30;
+        TRANSITION from 19 to 23 if user clicks "Agregar a Google Calendar" width 50;
+        TRANSITION from 23 to 21 if user clicks "Seleccionar cuenta" AND "Evento agregado a Google Calendar" width 70;
+        TRANSITION from 23 to 22 if user clicks "Seleccionar cuenta" AND "Error al agregar el evento" width 60;
+        TRANSITION from 22 to 19 if user clicks "Ok" width 30;
+    }
+}

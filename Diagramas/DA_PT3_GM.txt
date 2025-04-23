@@ -1,5 +1,5 @@
 direction: down
-app_js: "app_js\n(40 lines)" {
+app_js: "app_js\n(44 lines)" {
   style: {stroke-width: 1}
   shape: "rectangle"
 }
@@ -11,11 +11,11 @@ firebase_js: "firebase_js\n(20 lines)" {
   style: {stroke-width: 1}
   shape: "rectangle"
 }
-group_module_createuniqueevent_js: "group_module_createuniqueevent_js\n(103 lines)" {
+group_module_createuniqueevent_js: "group_module_createuniqueevent_js\n(145 lines)" {
   style: {stroke-width: 3}
   shape: "rectangle"
 }
-group_module_createweeklyevent_js: "group_module_createweeklyevent_js\n(175 lines)" {
+group_module_createweeklyevent_js: "group_module_createweeklyevent_js\n(201 lines)" {
   style: {stroke-width: 4}
   shape: "rectangle"
 }
@@ -23,12 +23,20 @@ group_module_editgroup_js: "group_module_editgroup_js\n(123 lines)" {
   style: {stroke-width: 3}
   shape: "rectangle"
 }
-group_module_group_js: "group_module_group_js\n(315 lines)" {
-  style: {stroke-width: 6}
+group_module_eventauthorization_js: "group_module_eventauthorization_js\n(93 lines)" {
+  style: {stroke-width: 2}
   shape: "rectangle"
 }
-group_module_groupservice_js: "group_module_groupservice_js\n(43 lines)" {
-  style: {stroke-width: 2}
+group_module_group_js: "group_module_group_js\n(430 lines)" {
+  style: {stroke-width: 7}
+  shape: "rectangle"
+}
+group_module_groupservice_js: "group_module_groupservice_js\n(39 lines)" {
+  style: {stroke-width: 1}
+  shape: "rectangle"
+}
+group_module_googlecalendarservice_js: "group_module_googlecalendarservice_js\n(128 lines)" {
+  style: {stroke-width: 3}
   shape: "rectangle"
 }
 showalert_js: "showalert_js\n(47 lines)" {
@@ -39,7 +47,7 @@ index_js: "index_js\n(15 lines)" {
   style: {stroke-width: 1}
   shape: "rectangle"
 }
-style_css: "style_css\n(843 lines)" {
+style_css: "style_css\n(915 lines)" {
   style: {stroke-width: 15}
   shape: "rectangle"
 }
@@ -63,6 +71,14 @@ firebase_app: "firebase_app" {
   style: {stroke-width: 1}
   shape: "oval"
 }
+browser-image-compression: "browser-image-compression" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
+gapi-script: "gapi-script" {
+  style: {stroke-width: 1}
+  shape: "oval"
+}
 react-dom_client: "react-dom_client" {
   style: {stroke-width: 1}
   shape: "oval"
@@ -83,7 +99,14 @@ app_js -> group_module_group_js: "Group" {style: {stroke: "#808080"}}
 app_js -> group_module_editgroup_js: "EditGroup" {style: {stroke: "#808080"}}
 app_js -> group_module_createweeklyevent_js: "CreateWeeklyEvent" {style: {stroke: "#808080"}}
 app_js -> group_module_createuniqueevent_js: "CreateUniqueEvent" {style: {stroke: "#808080"}}
+app_js -> group_module_eventauthorization_js: "EventAuthorization" {style: {stroke: "#808080"}}
 app_js -> error404_js: "Error404" {style: {stroke: "#808080"}}
+error404_js -> react: "React" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
 firebase_js -> firebase_app: "initializeApp" {style: {stroke: "#808080"}}
 firebase_js -> firebase_auth: "getAuth" {style: {stroke: "#808080"}}
 firebase_js -> firebase_firestore: "getFirestore" {style: {stroke: "#808080"}}
@@ -100,9 +123,10 @@ group_module_createuniqueevent_js -> react-router-dom: "useNavigate" {
   }
 }
 group_module_createuniqueevent_js -> firebase_js: "db" {style: {stroke: "#808080"}}
-group_module_createuniqueevent_js -> firebase_firestore: "collection,\naddDoc" {style: {stroke: "#808080"}}
+group_module_createuniqueevent_js -> firebase_firestore: "collection,\naddDoc,\nquery,\nwhere,\ngetDocs" {style: {stroke: "#808080"}}
 group_module_createuniqueevent_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
 group_module_createuniqueevent_js -> style_css: {style: {stroke: "#808080"}}
+group_module_createuniqueevent_js -> group_module_googlecalendarservice_js: "sendEmail" {style: {stroke: "#808080"}}
 group_module_createweeklyevent_js -> react: "React,\nuseState,\nuseEffect" {
   style: {
     stroke: "#61DAFB"
@@ -116,7 +140,8 @@ group_module_createweeklyevent_js -> react-router-dom: "useNavigate" {
   }
 }
 group_module_createweeklyevent_js -> firebase_js: "db" {style: {stroke: "#808080"}}
-group_module_createweeklyevent_js -> firebase_firestore: "addDoc,\ncollection" {style: {stroke: "#808080"}}
+group_module_createweeklyevent_js -> firebase_firestore: "addDoc,\ncollection,\nquery,\nwhere,\ngetDocs" {style: {stroke: "#808080"}}
+group_module_createweeklyevent_js -> group_module_googlecalendarservice_js: "sendEmail" {style: {stroke: "#808080"}}
 group_module_createweeklyevent_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
 group_module_createweeklyevent_js -> style_css: {style: {stroke: "#808080"}}
 group_module_editgroup_js -> react: "React,\nuseState,\nuseEffect" {
@@ -134,7 +159,23 @@ group_module_editgroup_js -> react-router-dom: "useNavigate" {
 group_module_editgroup_js -> group_module_groupservice_js: "updateGroupDetails" {style: {stroke: "#808080"}}
 group_module_editgroup_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
 group_module_editgroup_js -> style_css: {style: {stroke: "#808080"}}
-group_module_group_js -> react: "React,\nuseEffect,\nuseState,\nuseCallback" {
+group_module_eventauthorization_js -> react: "React,\nuseEffect,\nuseState" {
+  style: {
+    stroke: "#61DAFB"
+    stroke-dash: 5
+  }
+}
+group_module_eventauthorization_js -> react-router-dom: "useParams,\nuseNavigate" {
+  style: {
+    stroke: "#CA4245"
+    stroke-dash: 5
+  }
+}
+group_module_eventauthorization_js -> firebase_firestore: "doc,\ngetDoc" {style: {stroke: "#808080"}}
+group_module_eventauthorization_js -> firebase_js: "db" {style: {stroke: "#808080"}}
+group_module_eventauthorization_js -> group_module_googlecalendarservice_js: "initializeGoogleApi,\nsignInToGoogle,\ncreateWeeklyRecurringEvent" {style: {stroke: "#808080"}}
+group_module_eventauthorization_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
+group_module_group_js -> react: "React,\nuseEffect,\nuseState,\nuseRef" {
   style: {
     stroke: "#61DAFB"
     stroke-dash: 5
@@ -146,13 +187,15 @@ group_module_group_js -> react-router-dom: "useParams,\nuseNavigate" {
     stroke-dash: 5
   }
 }
-group_module_group_js -> firebase_firestore: "doc,\ngetDoc,\nupdateDoc" {style: {stroke: "#808080"}}
+group_module_group_js -> firebase_firestore: "doc,\ngetDoc,\ncollection,\nquery,\nwhere,\ngetDocs,\nupdateDoc" {style: {stroke: "#808080"}}
 group_module_group_js -> firebase_js: "db" {style: {stroke: "#808080"}}
 group_module_group_js -> profile_module_userservice_js: "getUserData" {style: {stroke: "#808080"}}
-group_module_group_js -> showalert_js: "showSuccess" {style: {stroke: "#808080"}}
+group_module_group_js -> browser-image-compression: "imageCompression" {style: {stroke: "#808080"}}
+group_module_group_js -> showalert_js: "showError,\nshowSuccess" {style: {stroke: "#808080"}}
 group_module_group_js -> style_css: {style: {stroke: "#808080"}}
 group_module_groupservice_js -> firebase_firestore: "doc,\nupdateDoc,\ngetDoc" {style: {stroke: "#808080"}}
 group_module_groupservice_js -> firebase_js: "db" {style: {stroke: "#808080"}}
+group_module_googlecalendarservice_js -> gapi-script: "gapi" {style: {stroke: "#808080"}}
 index_js -> react: "React" {
   style: {
     stroke: "#61DAFB"

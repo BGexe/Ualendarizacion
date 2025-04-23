@@ -16,41 +16,62 @@ const applyUserStyle = (color) => {
 const validateGroups = async () => {
     try{
         const now = new Date();
-        const trimestresRef = collection(db, "Trimestre");
-        const trimestreQuery = query(trimestresRef, where("fin_trimestre", "<", now));
-        const trimestreSnapshot = await getDocs(trimestreQuery);
+        //const trimestresRef = collection(db, "Trimestre");
+        //const trimestreQuery = query(trimestresRef, where("fin_trimestre", "<", now));
+        const trimestreSnapshot = await getDocs(
+            query(
+                collection(db, "Trimestre"),
+                where("fin_trimestre", "<", now)
+            )
+        );
 
         if(!trimestreSnapshot.empty){
-            const expiredTrimestres = trimestreSnapshot.docs.map(doc => doc.data().id_trimestre);
-            const groupRef = collection(db, "GrupoPublico");
-            const groupQuery = query(groupRef, where("id_trimestre", "in", expiredTrimestres));
-            const groupSnapshot = await getDocs(groupQuery);
+            //const expiredTrimestres = trimestreSnapshot.docs.map(doc => doc.data().id_trimestre);
+            //const groupRef = collection(db, "GrupoPublico");
+            //const groupQuery = query(groupRef, where("id_trimestre", "in", expiredTrimestres));
+            const groupSnapshot = await getDocs(
+                query(
+                    collection(db, "GrupoPublico"),
+                    where("id_trimestre", "in",
+                        trimestreSnapshot.docs.map(doc => doc.data().id_trimestre)
+                    )
+                )
+            );
 
             if(!groupSnapshot.empty){
                 await Promise.all(groupSnapshot.docs.map(async (docSnap) => {
                     const groupId = docSnap.id;
                     await deleteDoc(doc(db, "GrupoPublico", groupId));
 
-                    const usersRef = collection(db, "users");
-                    const usersQuery = query(usersRef, where("UsuarioGrupo", "array-contains", groupId));
-                    const usersSnapshot = await getDocs(usersQuery);
+                    //const usersRef = collection(db, "users");
+                    //const usersQuery = query(usersRef, where("UsuarioGrupo", "array-contains", groupId));
+                    const usersSnapshot = await getDocs(
+                        query(
+                            collection(db, "users"),
+                            where("UsuarioGrupo", "array-contains", groupId)
+                        )
+                    );
 
                     if(!usersSnapshot.empty){
                         await Promise.all(usersSnapshot.docs.map(async (userDoc) => {
                             const userData = userDoc.data();
-                            const updatedGroups = userData.UsuarioGrupo.filter(id => id !== groupId);
-                            await updateDoc(doc(db, "users", userDoc.id), { UsuarioGrupo: updatedGroups });
+                            //const updatedGroups = userData.UsuarioGrupo.filter(id => id !== groupId);
+                            await updateDoc(doc(db, "users", userDoc.id), { 
+                                UsuarioGrupo: userData.UsuarioGrupo.filter(
+                                    id => id !== groupId
+                                )
+                            });
                         }));
                     }
                 }));
             }
         }
 
-        const publicGroupRef = collection(db, "GrupoPublico");
-        const privateGroupRef = collection(db, "GrupoPrivado");
+        //const publicGroupRef = collection(db, "GrupoPublico");
+        //const privateGroupRef = collection(db, "GrupoPrivado");
         const [publicGroupSnapshot, privateGroupSnapshot] = await Promise.all([
-            getDocs(publicGroupRef),
-            getDocs(privateGroupRef),
+            getDocs(collection(db, "GrupoPublico")),
+            getDocs(collection(db, "GrupoPrivado")),
         ]);
 
         const deleteEmptyGroups = async (snapshot, collectionName) => {
@@ -135,12 +156,6 @@ const Profile = () => {
         const file = event.target.files[0];
         if(!file) return;
 
-        const allowedTypes = ["image/jpeg", "image/png"];
-        if(!allowedTypes.includes(file.type)){
-            showError("Solo se permiten archivos JPG, JPEG y PNG.");
-            return;
-        }
-
         try{
             let processedFile = file;
             if(file.size > 1024 * 1024){
@@ -156,10 +171,8 @@ const Profile = () => {
             });
 
             setProfilePicture(base64);
-            if(user && base64){
-                await updateUserProfile(user.uid, null, null, base64);
-                showSuccess("Foto de perfil actualizada con éxito.");
-            }
+            await updateUserProfile(user.uid, null, null, base64);
+            showSuccess("Foto de perfil actualizada con éxito.");        
 
             const updatedUser = { ...user, photoBase64: base64 };
             localStorage.setItem("user", JSON.stringify(updatedUser));
